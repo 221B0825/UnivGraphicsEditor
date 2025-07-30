@@ -3,9 +3,11 @@ package main;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import javax.swing.JButton;
+
 import shapeTools.GOval;
 import shapeTools.GRectangle;
-import shapeTools.GShape;
+import shapeTools.GShapeTool;
 
 public class GConstants {
 
@@ -25,16 +27,17 @@ public class GConstants {
 		eLine(new GRectangle(), "Line"),
 		ePolygon(new GRectangle(), "Polygon");
 
-		private GShape GShapeTool;
+		private GShapeTool GShapeTool;
 		private String text;
 		private EDrawingState eDrawingState;
 
-		private EShapeTool(GShape GShapeTool, String text) {
+		private EShapeTool(GShapeTool GShapeTool, String text) {
 			this.GShapeTool = GShapeTool;
 			this.text = text;
 			
 		}
-		public GShape getShapeTool() {
+
+		public GShapeTool getShapeTool() {
 			return this.GShapeTool;
 		}
 

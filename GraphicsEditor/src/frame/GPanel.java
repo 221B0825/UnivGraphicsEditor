@@ -12,7 +12,7 @@ import java.util.Vector;
 import javax.swing.JPanel;
 
 import main.GConstants.EDrawingState;
-import shapeTools.GShape;
+import shapeTools.GShapeTool;
 
 public class GPanel extends JPanel {
 	////////////////////////////////////////////////////
@@ -22,27 +22,37 @@ public class GPanel extends JPanel {
 
 	// components
 	private GMouseHandler mouseHandler;
-
+	private Vector<GShapeTool> shapes;
 	// association
 
 	// working Objects
-	private Vector<GShape> shapes;
-	private GShape shapeTool;
-	private GShape shapeClone;
+	
+	private GShapeTool shapeTool;
 
 	////////////////////////////////////////////////////
 	// getters and setters
-	public void setSelection(GShape shapeTool) {
+	public void setSelection(GShapeTool shapeTool) {
 		this.shapeTool = shapeTool;
+
+	}
+	public Vector<GShapeTool> getShapes() {
+		return this.shapes;
+	}
+	
+	public void read(Object shapes) {
+		this.shapes = (Vector<GShapeTool>) shapes;
+		this.repaint();
+	}
+	public void clear() {
+		this.shapes.clear();
+		this.repaint();
 
 	}
 
 	// constructors
 	public GPanel() {
-		this.shapeTool = null;
-
-		this.shapes = new Vector<GShape>();
-
+		this.shapes = new Vector<GShapeTool>();
+		
 		this.mouseHandler = new GMouseHandler();
 		this.addMouseListener(this.mouseHandler);
 		this.addMouseMotionListener(this.mouseHandler);
@@ -56,39 +66,31 @@ public class GPanel extends JPanel {
 	// methods
 
 	public void paint(Graphics graphics) {
-		super.paint(graphics);
-
-		for (GShape shape : this.shapes) {
-			shape.draw(graphics);
+		for(GShapeTool shape : this.shapes) {
+			shape.draw((Graphics2D) graphics);
 		}
-
 	}
 
 	private void setInitialPoint(int x, int y) {
-		this.shapeClone = this.shapeTool.clone();
-		this.shapeClone.setInitialPoint(x, y);
+		this.shapeTool.setInitialPoint(x, y);
 	}
 
 	private void setIntermediatePoint(int x, int y) {
-		this.shapeClone.setIntermediatePoint(x, y);
+		this.shapeTool.setIntermediatePoint(x, y);
 	}
 
 	private void animate(int x, int y) {
 		// exclusive or mode
-		Graphics2D graphics2D = (Graphics2D)this.getGraphics();
-		graphics2D.setXORMode(this.getBackground());
-		
-		this.shapeClone.draw(graphics2D);
-
-		this.shapeClone.animate(x, y);
-
-		this.shapeClone.draw(graphics2D);
+		Graphics2D graphics2D = (Graphics2D) getGraphics();
+		graphics2D.setXORMode(getBackground());
+		// erase
+		this.shapeTool.animate(graphics2D, x, y);
 	}
 
 	private void setFinalPoint(int x, int y) {
-		this.shapeClone.setFinalPoint(x, y);
-		this.shapes.add(this.shapeClone);
-
+		this.shapeTool.setFinalPoint(x, y);
+		this.shapes.add(this.shapeTool.clone());
+		
 	}
 
 	////////////////////////////////////////////////////
@@ -179,5 +181,7 @@ public class GPanel extends JPanel {
 		}
 
 	}
+
+	
 
 }

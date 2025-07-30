@@ -1,36 +1,36 @@
 package shapeTools;
 
-import java.awt.geom.Ellipse2D;
+import java.awt.Graphics2D;
 
 import main.GConstants.EDrawingState;
 
-public class GOval extends GShape {
+public class GOval extends GShapeTool {
 
 	public GOval() {
-		super(EDrawingState.e2PointDrawing);
-		this.shape = new Ellipse2D.Float();
+		super(EDrawingState.e2PointDrawing); 
 	}
 	@Override
-	public void setInitialPoint(int x, int y) {
-		Ellipse2D ellipse = (Ellipse2D) this.shape;
-		ellipse.setFrame(x, y, 0, 0);
+	public GShapeTool clone() {
+			GShapeTool cloned = new GOval();
+			cloned.x0 = this.x0;
+			cloned.y0 = this.y0;
+			cloned.x1 = this.x1;
+			cloned.y1 = this.y1;
+			return cloned;
 	}
 	@Override
-	public void setIntermediatePoint(int x, int y) {
-		
-	}
-	@Override
-	public void animate(int x, int y) {
-		Ellipse2D ellipse = (Ellipse2D) this.shape;
-		int width = (int) (x - ellipse.getX());
-		int height = (int) (y - ellipse.getY());
-		ellipse.setFrame(ellipse.getX(), ellipse.getY(), width, height);
-		
-//		graphics2d.drawOval(x0, y0, x1-x0, y1-y0);
-//		x1 = x;
-//		y1 = y;
-//		graphics2d.drawOval(x0, y0, x1-x0, y1-y0);
+	public void animate(Graphics2D graphics2d, int x, int y) {
+		graphics2d.drawOval(x0, y0, x1-x0, y1-y0);
+		x1 = x;
+		y1 = y;
+		graphics2d.drawOval(x0, y0, x1-x0, y1-y0);
+
 
 	}
-	
+	@Override
+	public void draw(Graphics2D graphics2d) {
+		graphics2d.drawOval(x0, y0, x1-x0, y1-y0);
+		
+	}
+
 }

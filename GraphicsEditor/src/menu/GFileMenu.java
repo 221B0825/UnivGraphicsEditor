@@ -2,6 +2,14 @@ package menu;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -17,6 +25,8 @@ public class GFileMenu extends JMenu {
 
 	// associations
 	private GPanel panel;
+	
+	File file;
 
 	public GFileMenu() {
 		super("File");
@@ -29,9 +39,10 @@ public class GFileMenu extends JMenu {
 
 		this.saveItem = new JMenuItem("save");
 		this.saveItem.setActionCommand("save");
-		this.addActionListener(actionHandler);
+		this.saveItem.addActionListener(actionHandler);
 		this.add(this.saveItem);
-
+		
+		this.file = null;
 	}
 
 	public void setAssciation(GPanel panel) {
@@ -39,11 +50,45 @@ public class GFileMenu extends JMenu {
 	}
 
 	private void openFile() {
+		
+		this.panel.clear();
+		try {
+			FileInputStream fileInputStream = new FileInputStream(this.file);
+			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+			Object object = objectInputStream.readObject();
+			objectInputStream.close();
+			this.panel.read(object);
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 
 	}
 
 	private void saveFile() {
-
+		File file = new File("test");
+		this.file = file;
+		try {
+			ObjectOutputStream objectOutputStream = new ObjectOutputStream(
+					new BufferedOutputStream(
+							new FileOutputStream(file)));
+			//System.out.println(this.panel.getShapes());
+			objectOutputStream.writeObject(this.panel.getShapes());
+			objectOutputStream.close();
+			this.panel.clear();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+				
 	}
 
 	private class ActionHandler implements ActionListener {
@@ -51,7 +96,7 @@ public class GFileMenu extends JMenu {
 		public void actionPerformed(ActionEvent e) {
 			if (e.getActionCommand() == "open") {
 				openFile();
-			} else if (e.getActionCommand() == "save") {
+			} else if (e.getActionCommand()== "save" ) {
 				saveFile();
 			}
 		}
