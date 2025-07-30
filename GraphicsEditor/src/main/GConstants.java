@@ -3,21 +3,15 @@ package main;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import javax.swing.JButton;
-
 import shapeTools.GOval;
-import shapeTools.GPolygon;
 import shapeTools.GRectangle;
-import shapeTools.GLine;
-import shapeTools.GShapeTool;
-
+import shapeTools.GShape;
 
 public class GConstants {
 
 	public static class CFrame {
 		public final static Point point = new Point(200, 300);
 		public final static Dimension dimesion = new Dimension(400, 600);
-		public final static String title = "GraphicsEditor";
 	}
 
 	public enum EDrawingState {
@@ -28,19 +22,19 @@ public class GConstants {
 	public enum EShapeTool {
 		eRectangle(new GRectangle(), "Rectangle"),
 		eOval(new GOval(), "Oval"),
-		eLine(new GLine(), "Line"),
-		ePolygon(new GPolygon(), "Polygon");
+		eLine(new GRectangle(), "Line"),
+		ePolygon(new GRectangle(), "Polygon");
 
-		private GShapeTool GShapeTool;
+		private GShape GShapeTool;
 		private String text;
+		private EDrawingState eDrawingState;
 
-		private EShapeTool(GShapeTool GShapeTool, String text) {
+		private EShapeTool(GShape GShapeTool, String text) {
 			this.GShapeTool = GShapeTool;
 			this.text = text;
 			
 		}
-
-		public GShapeTool getShapeTool() {
+		public GShape getShapeTool() {
 			return this.GShapeTool;
 		}
 

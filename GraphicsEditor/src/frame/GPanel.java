@@ -7,11 +7,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Vector;
 
 import javax.swing.JPanel;
 
 import main.GConstants.EDrawingState;
-import shapeTools.GShapeTool;
+import shapeTools.GShape;
 
 public class GPanel extends JPanel {
 	////////////////////////////////////////////////////
@@ -25,20 +26,24 @@ public class GPanel extends JPanel {
 	// association
 
 	// working Objects
-	private GShapeTool shapeTool;
+	private Vector<GShape> shapes;
+	private GShape shapeTool;
+	private GShape shapeClone;
 
 	////////////////////////////////////////////////////
 	// getters and setters
-	public void setSelection(GShapeTool shapeTool) {
+	public void setSelection(GShape shapeTool) {
 		this.shapeTool = shapeTool;
 
 	}
 
 	// constructors
 	public GPanel() {
+		this.shapeTool = null;
+
+		this.shapes = new Vector<GShape>();
 
 		this.mouseHandler = new GMouseHandler();
-
 		this.addMouseListener(this.mouseHandler);
 		this.addMouseMotionListener(this.mouseHandler);
 		this.addMouseWheelListener(this.mouseHandler);
@@ -51,27 +56,39 @@ public class GPanel extends JPanel {
 	// methods
 
 	public void paint(Graphics graphics) {
+		super.paint(graphics);
+
+		for (GShape shape : this.shapes) {
+			shape.draw(graphics);
+		}
 
 	}
 
 	private void setInitialPoint(int x, int y) {
-		this.shapeTool.setInitialPoint(x, y);
+		this.shapeClone = this.shapeTool.clone();
+		this.shapeClone.setInitialPoint(x, y);
 	}
 
 	private void setIntermediatePoint(int x, int y) {
-		this.shapeTool.setIntermediatePoint(x, y);
+		this.shapeClone.setIntermediatePoint(x, y);
 	}
 
 	private void animate(int x, int y) {
 		// exclusive or mode
-		Graphics2D graphics2D = (Graphics2D) getGraphics();
-		graphics2D.setXORMode(getBackground());
-		// erase
-		this.shapeTool.animate(graphics2D, x, y);
+		Graphics2D graphics2D = (Graphics2D)this.getGraphics();
+		graphics2D.setXORMode(this.getBackground());
+		
+		this.shapeClone.draw(graphics2D);
+
+		this.shapeClone.animate(x, y);
+
+		this.shapeClone.draw(graphics2D);
 	}
 
 	private void setFinalPoint(int x, int y) {
-		this.shapeTool.setFinalPoint(x, y);
+		this.shapeClone.setFinalPoint(x, y);
+		this.shapes.add(this.shapeClone);
+
 	}
 
 	////////////////////////////////////////////////////
