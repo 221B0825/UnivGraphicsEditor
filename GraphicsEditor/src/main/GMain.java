@@ -1,8 +1,11 @@
 package main;
 public class GMain {
 
+	private static GFrame frame;
+	
 	public static void main(String[] args) {
-		GFrame frame = new GFrame();
+		frame= new GFrame();
+		frame.initialize();
 		frame.setVisible(true);
 	}
 
