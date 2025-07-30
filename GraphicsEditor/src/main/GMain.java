@@ -1,4 +1,7 @@
 package main;
+
+import frame.GFrame;
+
 public class GMain {
 
 	private static GFrame frame;
