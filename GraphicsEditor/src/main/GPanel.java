@@ -7,69 +7,42 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+
 import javax.swing.JPanel;
+
 import main.GConstants.CDrawingState;
-import main.GConstants.CGToolBar;
+import main.GConstants.EButton;
 
 public class GPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	private String selection;
 	private String drawingState;
-	
-	private GPolygon polygon;
+	private GShapeTool shapeTool;
 
 	private GMouseHandler mouseHandler;
 
 	public GPanel() {
 
-		this.selection = CGToolBar.rectButton; // 초기값 설정
+		this.shapeTool = EButton.eRectangle.getShapeTool(); // 초기값 설정
 		this.drawingState = CDrawingState.stop; // 처음 실행시 그리지 않고 있음
-		
-		this.polygon = new GPolygon();
-		
+
 		this.mouseHandler = new GMouseHandler();
+
 		this.addMouseListener(this.mouseHandler);
-		this.addMouseMotionListener(mouseHandler);
-		this.addMouseWheelListener(mouseHandler);
-		
+		this.addMouseMotionListener(this.mouseHandler);
+		this.addMouseWheelListener(this.mouseHandler);
 	}
 
 	public void paint(Graphics graphics) {
 
 	}
-	
-	public void setSelection(String selection) {
-		
-		this.selection = selection;
+
+	public void setSelection(GShapeTool shapeTool) {
+		this.shapeTool = shapeTool;
+		// System.out.println(shapeTool.getClass().getName());
 	}
-	
-	public void setState(String state) {
-		this.drawingState = state;
-	}
-	
-	
-	public void initPoint(int x, int y) {
-		
-		this.polygon.initPoint(x,y);
-		
-	}
-	public void addPoint(int x, int y) {
-		this.polygon.addPoint(x, y);
-		
-	}
-	public void keepDrawing(int x, int y) {
-		Graphics2D graphics2D = (Graphics2D) getGraphics();
-		graphics2D.setXORMode(getBackground());
-		
-		this.polygon.draw(graphics2D);		
-		this.polygon.setPoint(x,y);
-		this.polygon.draw(graphics2D);
-		
-	}
-	
+
 	private class GMouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
-		private int x0, y0, x1, y1;
 
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
@@ -81,90 +54,61 @@ public class GPanel extends JPanel {
 			Graphics2D graphics2D = (Graphics2D) getGraphics();
 			// exclusive or mode
 			graphics2D.setXORMode(getBackground());
-			// erase
-			if (selection.equals(CGToolBar.rectButton)) {
-				graphics2D.drawRect(x0, y0, x1 - x0, y1 - y0);
-				// new paint
-				x1 = e.getX();
-				y1 = e.getY();
-				graphics2D.drawRect(x0, y0, x1 - x0, y1 - y0);
-			} else if (selection.equals(CGToolBar.ovalButton)) {
-				graphics2D.drawOval(x0, y0, x1 - x0, y1 - y0);
-				// new paint
-				x1 = e.getX();
-				y1 = e.getY();
-				graphics2D.drawOval(x0, y0, x1 - x0, y1 - y0);
-			} else if(selection.equals(CGToolBar.lineButton)) {
-				graphics2D.drawLine(x0, y0, x1, y1);
-				// new paint
-				x1 = e.getX();
-				y1 = e.getY();
-				graphics2D.drawLine(x0, y0, x1, y1);
-			} 
-				
-		}
-
-		@Override
-		public void mouseMoved(MouseEvent event) {
-			int x = event.getX();
-			int y = event.getY();
-			
-			if(selection.equals(CGToolBar.polygonButton)&& drawingState.equals(CDrawingState.drawing)) {
-				keepDrawing(x,y);
-			}
-	
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent event) {
-			if(event.getClickCount() == 1) { 
-				this.mouseOneClicked(event);
-			}else if(event.getClickCount()==2) {
-				this.mouseTwoClicked(event);
+			if (!shapeTool.equals(EButton.ePolygon.getShapeTool())) { // polygon에서는 dragged 사용 x
+				shapeTool.draw(graphics2D, e.getX(), e.getY());
 			}
 		}
 
-		// start drawing
-		private void mouseOneClicked(MouseEvent event) {
-			if(selection.equals(CGToolBar.polygonButton)&& drawingState.equals(CDrawingState.stop)) {
-				
-				int x = event.getX();
-				int y = event.getY();
-				
-				initPoint(x,y);
+		@Override
+		public void mouseMoved(MouseEvent e) {
+
+			if (shapeTool.equals(EButton.ePolygon.getShapeTool()) && drawingState.equals(CDrawingState.drawing)) {
+
+				Graphics2D graphics2d = (Graphics2D) getGraphics();
+				graphics2d.setXORMode(getBackground());
+				// polygon은 마지막으로 찍은 점에서부터 현재 마우스의 위치까지 계속해서 움직여질 때마다 그려주어야 함
+				shapeTool.keepDrawing(graphics2d, e.getX(), e.getY());
+			}
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getClickCount() == 1) {
+				this.mouseOneClicked(e);
+			} else if (e.getClickCount() == 2) {
+				this.mouseTwoClicked(e);
+			}
+
+		}
+
+		private void mouseOneClicked(MouseEvent e) {
+			if (shapeTool.equals(EButton.ePolygon.getShapeTool()) && drawingState.equals(CDrawingState.stop)) {
+				// 처음 polygon의 점 클릭
+				System.out.println("first mouseClicked");
+				shapeTool.initPoint(e.getX(), e.getY());
 				drawingState = CDrawingState.drawing;
-				
+
 			}
-			if(selection.equals(CGToolBar.polygonButton)&& drawingState.equals(CDrawingState.drawing)) {
-				int x = event.getX();
-				int y = event.getY();
-				addPoint(x, y);
+
+			if (shapeTool.equals(EButton.ePolygon.getShapeTool()) && drawingState.equals(CDrawingState.drawing)) {
+				System.out.println("mouseClicked");
+				// n번째 polygon의 점 클릭
+				shapeTool.addPoint(e.getX(), e.getY());
 			}
-			
-			
 		}
-		
-		// finish drawing
-		private void mouseTwoClicked(MouseEvent event) {
-			if(selection.equals(CGToolBar.polygonButton)&& drawingState.equals(CDrawingState.drawing)) {
-				
-				int x=event.getX();
-				int y=event.getY();
-				
+
+		private void mouseTwoClicked(MouseEvent e) {
+			if (shapeTool.equals(EButton.ePolygon.getShapeTool()) && drawingState.equals(CDrawingState.drawing)) {
+				// 더블클릭으로 드로잉 끝내기
+				System.out.println("STOP");
 				drawingState = CDrawingState.stop;
 			}
-			
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-
-			x0 = e.getX();
-			x1 = x0;
-
-			y0 = e.getY();
-			y1 = y0;
-
+			System.out.println("mousePressed");
+			shapeTool.initCoordinate(e.getX(), e.getY());
 		}
 
 		@Override
