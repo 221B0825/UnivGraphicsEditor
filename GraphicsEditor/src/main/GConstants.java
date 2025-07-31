@@ -3,15 +3,11 @@ package main;
 import java.awt.Dimension;
 import java.awt.Point;
 
-import javax.swing.JButton;
-import javax.swing.JMenu;
-
 import shapeTools.GOval;
-import shapeTools.GRectangle;
-import shapeTools.GShapeTool;
-import shapeTools.GLine;
 import shapeTools.GPolygon;
-
+import shapeTools.GRectangle;
+import shapeTools.GLine;
+import shapeTools.GShapeTool;
 
 public class GConstants {
 
@@ -38,6 +34,7 @@ public class GConstants {
 		private EShapeTool(GShapeTool GShapeTool, String text) {
 			this.GShapeTool = GShapeTool;
 			this.text = text;
+			
 		}
 
 		public GShapeTool getShapeTool() {
@@ -47,8 +44,8 @@ public class GConstants {
 		public String getText() {
 			return this.text;
 		}
+		
 	}
-	
 	public enum EMenu{
 		eFile("파일"),
 		eEdit("편집"),

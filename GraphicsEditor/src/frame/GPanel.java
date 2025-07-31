@@ -27,8 +27,8 @@ public class GPanel extends JPanel {
 
 	// working Objects
 	
-	private GShapeTool shapeTool;
-	private GShapeTool shapeClone;
+	private GShapeTool shapeTool; // 도구에 선택된 애가 있음
+	private GShapeTool drawingTool; // 그걸 카피해서 그림그리는 애
 
 	////////////////////////////////////////////////////
 	// getters and setters
@@ -72,12 +72,12 @@ public class GPanel extends JPanel {
 	}
 
 	private void setInitialPoint(int x, int y) {
-		this.shapeClone = this.shapeTool.clone();
-		this.shapeClone.setInitialPoint(x, y);
+		this.drawingTool = this.shapeTool.newInstance();
+		this.drawingTool.setInitialPoint(x, y);
 	}
 
 	private void setIntermediatePoint(int x, int y) {
-		this.shapeClone.setIntermediatePoint(x, y);
+		this.drawingTool.setIntermediatePoint(x, y);
 	}
 
 	private void animate(int x, int y) {
@@ -85,14 +85,12 @@ public class GPanel extends JPanel {
 		Graphics2D graphics2D = (Graphics2D) getGraphics();
 		graphics2D.setXORMode(getBackground());
 		// erase
-		this.shapeClone.draw(graphics2D);
-		this.shapeClone.animate(graphics2D, x, y);
-		this.shapeClone.draw(graphics2D);
+		this.drawingTool.animate(graphics2D, x, y);
 	}
 
 	private void setFinalPoint(int x, int y) {
-		this.shapeClone.setFinalPoint(x, y);
-		this.shapes.add(this.shapeClone);
+		this.drawingTool.setFinalPoint(x, y);
+		this.shapes.add(this.drawingTool);
 		
 	}
 
