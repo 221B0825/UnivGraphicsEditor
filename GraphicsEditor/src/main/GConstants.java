@@ -6,6 +6,7 @@ import java.awt.Point;
 import shapeTools.GOval;
 import shapeTools.GPolygon;
 import shapeTools.GRectangle;
+import shapeTools.GLine;
 import shapeTools.GShapeTool;
 
 public class GConstants {
@@ -14,21 +15,57 @@ public class GConstants {
 		public final static Point point = new Point(200, 300);
 		public final static Dimension dimesion = new Dimension(400, 600);
 	}
+	
+	public static class CAnchor{
+		public final static int wAnchor = 10;
+		public final static int hAnchor = 10;
+	}
 
 	public enum EDrawingStyle {
 		e2PointDrawing,
 		eNPointDrawing
 	};
+	public enum EDrawingState{
+		eStop,
+		eDrawing,
+		eMove,
+		eResize,
+		eRotate,
+		eShear
+	};
+
+	public enum EAnchors {	
+		x0y0("eResizeAnchor"),
+		x0y1("eResizeAnchor"), 
+		x0y2("eResizeAnchor"),
+		x1y0("eResizeAnchor"),
+		x1y2("eResizeAnchor"),
+		x2y0("eResizeAnchor"),
+		x2y1("eResizeAnchor"),
+		x2y2("eResizeAnchor"),
+		RR("eRotateAnchor");
+		
+		private String anchorStyle;
+		
+		EAnchors(String anchorStyle) {
+			this.anchorStyle = anchorStyle;
+		}
+	}
+	public enum EAnchorStyle {
+		eResizeAnchor,
+		eRotateAnchor,
+		eShearAnchor
+		
+	};
 
 	public enum EShapeTool {
 		eRectangle(new GRectangle(), "Rectangle"),
 		eOval(new GOval(), "Oval"),
-		eLine(new GRectangle(), "Line"),
+		eLine(new GLine(), "Line"),
 		ePolygon(new GPolygon(), "Polygon");
 
 		private GShapeTool GShapeTool;
 		private String text;
-		private EDrawingStyle eDrawingState;
 
 		private EShapeTool(GShapeTool GShapeTool, String text) {
 			this.GShapeTool = GShapeTool;
