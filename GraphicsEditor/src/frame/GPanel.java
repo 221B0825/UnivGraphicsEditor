@@ -28,26 +28,26 @@ public class GPanel extends JPanel {
 	// working Objects
 	
 	private GShapeTool shapeTool;
+	private GShapeTool shapeClone;
 
 	////////////////////////////////////////////////////
 	// getters and setters
+	public Vector<GShapeTool> getShapes() {
+		return this.shapes;
+		
+	}
+	public void setShapes(Vector<GShapeTool> shapes) {
+		this.shapes = shapes;
+		this.repaint();
+	}
+	
 	public void setSelection(GShapeTool shapeTool) {
 		this.shapeTool = shapeTool;
 
 	}
-	public Vector<GShapeTool> getShapes() {
-		return this.shapes;
-	}
 	
-	public void read(Object shapes) {
-		this.shapes = (Vector<GShapeTool>) shapes;
-		this.repaint();
-	}
-	public void clear() {
-		this.shapes.clear();
-		this.repaint();
-
-	}
+	
+	
 
 	// constructors
 	public GPanel() {
@@ -72,11 +72,12 @@ public class GPanel extends JPanel {
 	}
 
 	private void setInitialPoint(int x, int y) {
-		this.shapeTool.setInitialPoint(x, y);
+		this.shapeClone = this.shapeTool.clone();
+		this.shapeClone.setInitialPoint(x, y);
 	}
 
 	private void setIntermediatePoint(int x, int y) {
-		this.shapeTool.setIntermediatePoint(x, y);
+		this.shapeClone.setIntermediatePoint(x, y);
 	}
 
 	private void animate(int x, int y) {
@@ -84,12 +85,14 @@ public class GPanel extends JPanel {
 		Graphics2D graphics2D = (Graphics2D) getGraphics();
 		graphics2D.setXORMode(getBackground());
 		// erase
-		this.shapeTool.animate(graphics2D, x, y);
+		this.shapeClone.draw(graphics2D);
+		this.shapeClone.animate(graphics2D, x, y);
+		this.shapeClone.draw(graphics2D);
 	}
 
 	private void setFinalPoint(int x, int y) {
-		this.shapeTool.setFinalPoint(x, y);
-		this.shapes.add(this.shapeTool.clone());
+		this.shapeClone.setFinalPoint(x, y);
+		this.shapes.add(this.shapeClone);
 		
 	}
 
