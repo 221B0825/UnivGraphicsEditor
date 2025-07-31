@@ -14,18 +14,19 @@ import main.GConstants.EDrawingStyle;
 abstract public class GShapeTool implements Serializable, Cloneable {
 	// attributes
 	private static final long serialVersionUID = 1L;
-	
+
 	public int moveX, moveY;
 	private EDrawingStyle eDrawingStyle;
 	protected Shape shape;
 	private Ellipse2D[] anchors;
-	private boolean isSelected;
 
 	// working variables
+	private EAnchors selectedAnchor;
+	private boolean isSelected;
 
 	// constructors
 	public GShapeTool(EDrawingStyle eDrawingStyle) {
-		
+
 		this.anchors = new Ellipse2D.Double[EAnchors.values().length];
 		for (EAnchors eAnchor : EAnchors.values()) {
 			this.anchors[eAnchor.ordinal()] = new Ellipse2D.Double();
@@ -60,9 +61,9 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 		this.isSelected = isSelected;
 	}
 	// ----------------------------------------------
-	
+
 	private void setAnchors(Rectangle rectangle) {
-		
+
 		int x0 = rectangle.x - CAnchor.wAnchor / 2; // 좌측
 		int x1 = rectangle.x - CAnchor.wAnchor / 2 + rectangle.width / 2; // 중간
 		int x2 = rectangle.x - CAnchor.wAnchor / 2 + rectangle.width; // 우측
@@ -82,16 +83,17 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 
 		this.anchors[EAnchors.RR.ordinal()].setFrame(x1, y0 - 40, CAnchor.wAnchor, CAnchor.hAnchor);
 	}
+
 	public void drawAnchors(Graphics2D graphics2d) {
 		for (EAnchors eAnchor : EAnchors.values()) {
 			// 비어있는 앵커를 만드려고 함
-			Color color = graphics2d.getColor(); //펜 색깔을 color에 저장함
-			
-			graphics2d.setColor(graphics2d.getBackground()); //펜 색깔을 배경색으로 바꿈
-			graphics2d.fill(this.anchors[eAnchor.ordinal()]); //배경색으로 속을 칠함
-			
-			graphics2d.setColor(color); //원래 펜 색깔로 바꿔줌
-			graphics2d.draw(this.anchors[eAnchor.ordinal()]); //원래 펜 색깔로 그림
+			Color color = graphics2d.getColor(); // 펜 색깔을 color에 저장함
+
+			graphics2d.setColor(graphics2d.getBackground()); // 펜 색깔을 배경색으로 바꿈
+			graphics2d.fill(this.anchors[eAnchor.ordinal()]); // 배경색으로 속을 칠함
+
+			graphics2d.setColor(color); // 원래 펜 색깔로 바꿔줌
+			graphics2d.draw(this.anchors[eAnchor.ordinal()]); // 원래 펜 색깔로 그림
 		}
 	}
 
@@ -103,6 +105,8 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 		}
 		return false;
 	}
+
+
 	// ----------------------------------------------
 	public void draw(Graphics2D graphics2d) {
 		graphics2d.draw(this.shape);
@@ -122,7 +126,7 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 
 	public void keepMove(Graphics2D graphics2d, int x, int y) {
 		this.draw(graphics2d);
-		this.moveShape(x-this.moveX,y-this.moveY);
+		this.moveShape(x - this.moveX, y - this.moveY);
 		this.drawAnchors(graphics2d);
 		this.setAnchors(this.shape.getBounds());
 		this.drawAnchors(graphics2d);
@@ -147,7 +151,7 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 	public abstract void setFinalPoint(int x, int y);
 
 	public abstract void movePoint(int x, int y);
-	
+
 	// ----------------------------------------------
 	public abstract void moveShape(int x, int y);
 

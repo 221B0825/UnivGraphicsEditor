@@ -6,7 +6,6 @@ import java.awt.Point;
 import shapeTools.GOval;
 import shapeTools.GPolygon;
 import shapeTools.GRectangle;
-import shapeTools.GLine;
 import shapeTools.GShapeTool;
 
 public class GConstants {
@@ -35,33 +34,21 @@ public class GConstants {
 	};
 
 	public enum EAnchors {	
-		x0y0("eResizeAnchor"),
-		x0y1("eResizeAnchor"), 
-		x0y2("eResizeAnchor"),
-		x1y0("eResizeAnchor"),
-		x1y2("eResizeAnchor"),
-		x2y0("eResizeAnchor"),
-		x2y1("eResizeAnchor"),
-		x2y2("eResizeAnchor"),
-		RR("eRotateAnchor");
-		
-		private String anchorStyle;
-		
-		EAnchors(String anchorStyle) {
-			this.anchorStyle = anchorStyle;
-		}
+		x0y0,
+		x0y1, 
+		x0y2,
+		x1y0,
+		x1y2,
+		x2y0,
+		x2y1,
+		x2y2,
+		RR;
 	}
-	public enum EAnchorStyle {
-		eResizeAnchor,
-		eRotateAnchor,
-		eShearAnchor
-		
-	};
 
 	public enum EShapeTool {
 		eRectangle(new GRectangle(), "Rectangle"),
 		eOval(new GOval(), "Oval"),
-		eLine(new GLine(), "Line"),
+		eLine(new GRectangle(), "Line"),
 		ePolygon(new GPolygon(), "Polygon");
 
 		private GShapeTool GShapeTool;

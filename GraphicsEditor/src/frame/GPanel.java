@@ -12,6 +12,7 @@ import java.util.Vector;
 
 import javax.swing.JPanel;
 
+import main.GConstants.EAnchors;
 import main.GConstants.EDrawingState;
 import main.GConstants.EDrawingStyle;
 import shapeTools.GShapeTool;
@@ -32,6 +33,7 @@ public class GPanel extends JPanel {
 	private EDrawingState eDrawingState; // 멈춰있거나 그리고 있거나 동작하고 있거나를 판별하는 애
 	private GShapeTool shapeTool; // 도구에 선택된 애가 있음
 	private GShapeTool drawingTool; // 그걸 카피해서 그림그리는 애
+	private int selectedIndex;
 
 	private Vector<GShapeTool> selectedShapes; // 선택된 도형들
 
@@ -106,16 +108,13 @@ public class GPanel extends JPanel {
 	public boolean onAnchor(int x, int y) { // 앵커가 그려진 도형은 선택된 도형들임
 		for (GShapeTool shapeTool : this.selectedShapes) {
 			if (shapeTool.onAnchor(x, y)) { // 선택된 도형들의 앵커들 중 하나만 클릭해도 참
+				this.selectedIndex = selectedShapes.indexOf(shapeTool);
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public void whatAnchor(int x, int y) {
-		
-	
-	}
 	// ----------------------------------------------
 	private void setInitialPoint(int x, int y) {
 		this.drawingTool = this.shapeTool.newInstance();
@@ -188,11 +187,10 @@ public class GPanel extends JPanel {
 					if (!onAnchor(e.getX(), e.getY())) { // 앵커 위가 아닌 도형 위인지 판별해야 함
 						initMove(e.getX(), e.getY());
 						eDrawingState = EDrawingState.eMove;
-					} else { // 앵커 위일때
-						whatAnchor(e.getX(), e.getY());
-//						if () { // 어떤 앵커인지 판별해야 함
-//							
-//						}
+					} else { // 앵커 위일때 이미 한번 판별했으므로 어떤 앵커인지 가져올 수 있음
+						if(selectedIndex==0) {
+							
+						}
 					}
 				}
 			}
