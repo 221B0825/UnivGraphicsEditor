@@ -2,13 +2,13 @@ package shapeTools;
 
 import java.awt.Polygon;
 
-import main.GConstants.EDrawingState;
+import main.GConstants.EDrawingStyle;
 
 public class GPolygon extends GShapeTool {
 	private static final long serialVersionUID = 1L;
 	
 	public GPolygon() {
-		super(EDrawingState.eNPointDrawing);
+		super(EDrawingStyle.eNPointDrawing);
 		this.shape = new Polygon();
 	}
 	@Override

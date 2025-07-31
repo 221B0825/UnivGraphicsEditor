@@ -3,7 +3,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
 
-import main.GConstants.CFrame;
+import main.GConstants;
 import menu.GMenuBar;
 
 public class GFrame extends JFrame {
@@ -18,8 +18,8 @@ public class GFrame extends JFrame {
 	public GFrame() {
 		//내부 속성 --> 웬만하면 변하지 않음
 		// initialize attributes
-		this.setLocation(CFrame.point);
-		this.setSize(CFrame.dimension);
+		this.setLocation(GConstants.CFrame.point);
+		this.setSize(GConstants.CFrame.dimesion);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		// initialize components

@@ -12,36 +12,10 @@ public class GConstants {
 
 	public static class CFrame {
 		public final static Point point = new Point(200, 300);
-		public final static Dimension dimension = new Dimension(400, 600);
-	}
-	
-	public static class CAnchor{
-		public final static Dimension dimension = new Dimension(10,10);
-		
-		public static Point getPoint(double x, double y) {
-			Point point = new Point();
-			point.setLocation(x, y);
-			
-			return point;
-		}
-		
-		public static Point getVertex(double x, double y) {
-			Point point = new Point();
-			point.setLocation(x-5, y-5);
-			
-			return point;
-		}
-		
-		
-		public static Point getRotatePoint(double x, double y) {
-			Point point = new Point();
-			point.setLocation(x, y-50);
-			
-			return point;
-		}
+		public final static Dimension dimesion = new Dimension(400, 600);
 	}
 
-	public enum EDrawingState {
+	public enum EDrawingStyle {
 		e2PointDrawing,
 		eNPointDrawing
 	};
@@ -54,7 +28,7 @@ public class GConstants {
 
 		private GShapeTool GShapeTool;
 		private String text;
-		private EDrawingState eDrawingState;
+		private EDrawingStyle eDrawingState;
 
 		private EShapeTool(GShapeTool GShapeTool, String text) {
 			this.GShapeTool = GShapeTool;

@@ -2,7 +2,7 @@ package shapeTools;
 
 import java.awt.Rectangle;
 
-import main.GConstants.EDrawingState;
+import main.GConstants.EDrawingStyle;
 
 public class GRectangle extends GShapeTool {
 	//attributes
@@ -12,7 +12,7 @@ public class GRectangle extends GShapeTool {
 	
 	//constructors
 	public GRectangle() {
-		super(EDrawingState.e2PointDrawing);
+		super(EDrawingStyle.e2PointDrawing);
 		this.shape = new Rectangle();
 	}
 	@Override

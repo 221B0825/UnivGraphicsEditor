@@ -2,14 +2,14 @@ package shapeTools;
 
 import java.awt.geom.Ellipse2D;
 
-import main.GConstants.EDrawingState;
+import main.GConstants.EDrawingStyle;
 
 public class GOval extends GShapeTool {
 	//attributes
 	private static final long serialVersionUID = 1L;
 	//components
 	public GOval() {
-		super(EDrawingState.e2PointDrawing); 
+		super(EDrawingStyle.e2PointDrawing); 
 		this.shape = new Ellipse2D.Float();
 	}
 	@Override
@@ -36,6 +36,5 @@ public class GOval extends GShapeTool {
 		ellipse.setFrame(ellipse.getX(),ellipse.getY(), x-ellipse.getX(), y-ellipse.getY());
 
 	}
-	
 
 }

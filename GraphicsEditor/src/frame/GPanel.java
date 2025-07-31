@@ -2,7 +2,6 @@ package frame;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -12,7 +11,7 @@ import java.util.Vector;
 
 import javax.swing.JPanel;
 
-import main.GConstants.EDrawingState;
+import main.GConstants.EDrawingStyle;
 import shapeTools.GShapeTool;
 
 public class GPanel extends JPanel {
@@ -30,8 +29,7 @@ public class GPanel extends JPanel {
 
 	private GShapeTool shapeTool; // 도구에 선택된 애가 있음
 	private GShapeTool drawingTool; // 그걸 카피해서 그림그리는 애
-	private GShapeTool selectedShape;
-	private boolean isSelected; // 선택된 상황인지 아닌지 판별
+	private GShapeTool selectedTool;
 
 	////////////////////////////////////////////////////
 	// getters and setters
@@ -53,7 +51,6 @@ public class GPanel extends JPanel {
 	// constructors
 	public GPanel() {
 		this.shapes = new Vector<GShapeTool>();
-		this.isSelected = false;
 
 		this.mouseHandler = new GMouseHandler();
 		this.addMouseListener(this.mouseHandler);
@@ -73,6 +70,25 @@ public class GPanel extends JPanel {
 		}
 	}
 
+	private boolean onShape(int x, int y) {
+		Graphics2D graphics2D = (Graphics2D) getGraphics();
+		graphics2D.setXORMode(getBackground());
+		
+		for (GShapeTool shapeTool : this.shapes) {
+			if (shapeTool.containes(x, y)) {
+				this.selectedTool = shapeTool;
+				this.drawingTool = shapeTool;
+				this.drawingTool.setSelected(graphics2D,true);
+				return true;
+			}
+		}
+		
+		for (GShapeTool shapeTool : this.shapes) { // 도형 밖을 선택하면 전체 지움
+			shapeTool.setSelected(graphics2D,false);
+		}
+		return false;
+	}
+
 	private void setInitialPoint(int x, int y) {
 		this.drawingTool = this.shapeTool.newInstance();
 		this.drawingTool.setInitialPoint(x, y);
@@ -90,27 +106,6 @@ public class GPanel extends JPanel {
 		this.drawingTool.animate(graphics2D, x, y);
 	}
 
-	private void setSelected(int x, int y) {
-		Graphics2D anchors = (Graphics2D) getGraphics();
-		anchors.setXORMode(getBackground());
-
-		if (isSelected) { // 이미 하나가 선택된 상황이라면
-			this.drawingTool.setSelected(anchors, this.selectedShape);
-			isSelected = false;
-		}
-		for (GShapeTool shape : this.shapes) { // 선택된 도형 찾기
-			if (shape.containes(x, y)) { // 만약 한 도형 내부에 속한거라면
-				this.isSelected = true;
-				this.selectedShape = shape;
-			}
-		}
-
-		if (isSelected) {
-			this.drawingTool.setSelected(anchors, this.selectedShape);
-		}
-
-	}
-
 	private void setFinalPoint(int x, int y) {
 		this.drawingTool.setFinalPoint(x, y);
 		this.shapes.add(this.drawingTool);
@@ -125,6 +120,50 @@ public class GPanel extends JPanel {
 
 		public GMouseHandler() {
 			isDrawing = false;
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getButton() == MouseEvent.BUTTON1) {
+				if (e.getClickCount() == 1) {
+					this.mouseLButton1Clicked(e);
+				} else if (e.getClickCount() == 2) {
+					this.mouseLButton2Clicked(e);
+				}
+
+			} else if (e.getButton() == MouseEvent.BUTTON2) {
+				if (e.getClickCount() == 1) {
+					this.mouseRButton1Clicked(e);
+				}
+			}
+		}
+
+		private void mouseLButton1Clicked(MouseEvent e) {
+			if (!isDrawing) {
+				if (!onShape(e.getX(), e.getY())) {
+					if (shapeTool.getDrawingStyle() == EDrawingStyle.eNPointDrawing) {
+						setInitialPoint(e.getX(), e.getY());
+						this.isDrawing = true;
+					}
+				}
+					
+			} else {
+				if (shapeTool.getDrawingStyle() == EDrawingStyle.eNPointDrawing) {
+					setIntermediatePoint(e.getX(), e.getY());
+				}
+			}
+		}
+
+		private void mouseLButton2Clicked(MouseEvent e) {
+			if (isDrawing) {
+				if (shapeTool.getDrawingStyle() == EDrawingStyle.eNPointDrawing) {
+					setFinalPoint(e.getX(), e.getY());
+					this.isDrawing = false;
+				}
+			}
+		}
+
+		private void mouseRButton1Clicked(MouseEvent e) {
 
 		}
 
@@ -134,72 +173,41 @@ public class GPanel extends JPanel {
 		}
 
 		@Override
-		public void mouseDragged(MouseEvent e) {
-			if (shapeTool.getDrawingState() == EDrawingState.e2PointDrawing) {
-				if (isDrawing) {
-					animate(e.getX(), e.getY());
-				}
-			}
-
-		}
-
-		@Override
 		public void mouseMoved(MouseEvent e) {
-			if (shapeTool.getDrawingState() == EDrawingState.eNPointDrawing) {
+			if (shapeTool.getDrawingStyle() == EDrawingStyle.eNPointDrawing) {
 				if (isDrawing) {
 					animate(e.getX(), e.getY());
 				}
 			}
-		}
-
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			if (shapeTool.getDrawingState() == EDrawingState.eNPointDrawing) { // 폴리곤일때만
-				if (e.getButton() == MouseEvent.BUTTON1) { // 마우스 왼쪽 클릭
-					if (e.getClickCount() == 1) {
-						if (isDrawing && !isSelected) { //선택된 상황이 아닐 때만 그리기
-							setIntermediatePoint(e.getX(), e.getY());
-						} else if (!isSelected) {
-							setInitialPoint(e.getX(), e.getY());
-							this.isDrawing = true;
-						}
-
-					} else if (e.getClickCount() == 2) {
-						setFinalPoint(e.getX(), e.getY());
-						this.isDrawing = false;
-					}
-				}
-			}
-
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			if (shapeTool.getDrawingState() == EDrawingState.e2PointDrawing) {
-				if (!isDrawing) { // 그리지 않고 있을 때
-					if (!shapes.isEmpty()) { // 그린 게 있을 때
-						setSelected(e.getX(), e.getY());
-					}
+			if (!isDrawing) {
+				if (shapeTool.getDrawingStyle() == EDrawingStyle.e2PointDrawing) {
 					setInitialPoint(e.getX(), e.getY());
 					this.isDrawing = true;
 				}
-			} else if (shapeTool.getDrawingState() == EDrawingState.eNPointDrawing) {
-				if (!isDrawing) { // 그리지 않고 있을 때
-					if (!shapes.isEmpty()) { // 그린 게 있을 때
-						setSelected(e.getX(), e.getY());
-					}
+
+			}
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			if (isDrawing) {
+				if (shapeTool.getDrawingStyle() == EDrawingStyle.e2PointDrawing) {
+					animate(e.getX(), e.getY());
 				}
 			}
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (shapeTool.getDrawingState() == EDrawingState.e2PointDrawing) {
-				if (isDrawing) {
+			if (isDrawing) {
+				if (shapeTool.getDrawingStyle() == EDrawingStyle.e2PointDrawing) {
 					setFinalPoint(e.getX(), e.getY());
 					this.isDrawing = false;
 				}
-
 			}
 		}
 
