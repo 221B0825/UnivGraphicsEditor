@@ -8,6 +8,7 @@ public class GMover extends GTransformer {
 
 	public GMover(GShapeTool selectedShape) {
 		super(selectedShape);
+		
 	}
 
 	@Override

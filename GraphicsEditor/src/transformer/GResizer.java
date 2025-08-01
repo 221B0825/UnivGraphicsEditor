@@ -12,7 +12,8 @@ public class GResizer extends GTransformer {
 
 	@Override
 	public void transform(Graphics2D graphics2d, int x, int y) {
-		this.selectedShape.resize(graphics2d, x - px, y - py);
+		this.selectedShape.resize(graphics2d,this.selectedShape ,x-px, y-py);
+		
 	}
 
 }

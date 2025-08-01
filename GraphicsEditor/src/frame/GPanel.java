@@ -35,7 +35,7 @@ public class GPanel extends JPanel {
 	private GShapeTool shapeTool; // 도구에 선택된 애가 있음
 	private GShapeTool selectedShape; // 그걸 카피해서 그림그리는 애
 	private GTransformer transformer;
-
+	
 	////////////////////////////////////////////////////
 	// getters and setters
 	public Vector<GShapeTool> getShapes() {
@@ -77,7 +77,7 @@ public class GPanel extends JPanel {
 	}
 
 	private void setSelected(GShapeTool selectedShape) {
-		for (GShapeTool shape : this.shapes) {
+		for(GShapeTool shape : this.shapes) {
 			shape.setSelected(false);
 		}
 		this.selectedShape = selectedShape;
@@ -85,7 +85,7 @@ public class GPanel extends JPanel {
 		this.repaint();
 	}
 
-	private GShapeTool onShape(int x, int y) { // 어떤 도형인지 확인함
+	private GShapeTool onShape(int x, int y) { //어떤 도형인지 확인함
 		for (GShapeTool shape : this.shapes) {
 			EAction eAction = shape.containes(x, y);
 			if (eAction != null) {
@@ -118,11 +118,11 @@ public class GPanel extends JPanel {
 
 	}
 
-	private void initTransforming(GShapeTool selectedShape, int x, int y) {
+	private void initTransforming(GShapeTool selectedShape,int x, int y) {
 
 		this.selectedShape = selectedShape;
 		EAction eAction = this.selectedShape.getAction();
-		switch (eAction) {
+		switch(eAction) {
 		case eMove:
 			this.transformer = new GMover(this.selectedShape);
 			break;
@@ -131,23 +131,27 @@ public class GPanel extends JPanel {
 			break;
 		case eRotate:
 			break;
+			//셋 중 하나도 아닐 떄
 		default:
 			break;
 		}
+		
 		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
 		graphics2d.setXORMode(this.getBackground());
-		this.transformer.initTransforming(graphics2d, x, y);
+		this.transformer.initTransforming(graphics2d,x,y);
 	}
 
 	private void keepTransforming(int x, int y) {
 		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
 		graphics2d.setXORMode(this.getBackground());
+		
 		this.transformer.keepTransforming(graphics2d, x, y);
 	}
 
 	private void finishTransforming(int x, int y) {
 		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
 		graphics2d.setXORMode(this.getBackground());
+		
 		this.transformer.finishTransforming(graphics2d, x, y);
 	}
 
@@ -173,7 +177,7 @@ public class GPanel extends JPanel {
 						this.isDrawing = true;
 					}
 				} else {
-					initTransforming(selectedShape, e.getX(), e.getY());
+					initTransforming(selectedShape,e.getX(), e.getY());
 					this.isTransforming = true;
 				}
 			}
