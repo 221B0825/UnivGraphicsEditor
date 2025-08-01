@@ -2,17 +2,18 @@ package shapeTools;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Ellipse2D.Double;
 import java.io.Serializable;
 import java.util.Vector;
 
 import main.GConstants;
 import main.GConstants.EAction;
 import main.GConstants.EDrawingStyle;
-import transformer.GTransformer;
 
 abstract public class GShapeTool implements Serializable, Cloneable {
 	// attributes
@@ -22,15 +23,14 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 		x0y0, x0y1, x0y2, x1y0, x1y2, x2y0, x2y1, x2y2, RR
 	}
 
-	private EDrawingStyle eDrawingStyle;
-	protected Shape shape;
-	private Ellipse2D[] anchors;
-	private boolean isSelected;
+	private EDrawingStyle eDrawingStyle; // 프리미티브 타입이라서 복사가 됨(정확한가?)
+	protected Shape shape; // 복사가 안됨 얘는 복합 타입이라
+	private Ellipse2D[] anchors; // 복사 안됨
+	private boolean isSelected; // 복사 됨
 	private EAnchors selectedAnchor;
 	private EAction eAction;
-	private AffineTransform affineTransform;
-	private Vector<AffineTransform> affinetransformers;
-	
+	private AffineTransform affineTransform; // 복사 안됨(포인터만 복사됨)
+	// 여기 있는 게 메모리의 값을 가지고 있느냐, 포인터만 있느냐의 차이임
 	// working variables
 
 	// constructors
@@ -43,33 +43,42 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 		this.isSelected = false;
 		this.eDrawingStyle = eDrawingStyle;
 		this.selectedAnchor = null;
-		
+
 		this.affineTransform = new AffineTransform();
 		this.affineTransform.setToIdentity();
 		
-		this.affinetransformers = new Vector<AffineTransform>();
-		
+	}
+
+	public Object clone() {
+		GShapeTool cloned = null;
+		try {
+			cloned = (GShapeTool) super.clone(); // 이 위에있는 구조를 모두 복사해서 갖다줘라, 나까지는 복사가 됐는데,
+			for (EAnchors eAnchor : EAnchors.values()) {
+				cloned.anchors[eAnchor.ordinal()] = (Ellipse2D) this.anchors[eAnchor.ordinal()].clone();
+			}
+			cloned.affineTransform = (AffineTransform) this.affineTransform.clone();
+		} catch (CloneNotSupportedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return cloned;
 	}
 
 	// getters & setters
+	public Shape getShape() {
+		return this.shape;
+	}
+
+	public Shape setShape(Shape shape) {
+		return this.shape = shape;
+	}
+
 	public EDrawingStyle getDrawingStyle() {
 		return this.eDrawingStyle;
 	}
+
 	public EAction getAction() {
 		return this.eAction;
-	}
-	public Vector<AffineTransform> getTransformedShape() {
-		return this.affinetransformers;
-	}
-	public AffineTransform getAffineTransform() {
-		return this.affineTransform;
-	}
-	public void setAffineTransform(AffineTransform affineTransform) {
-		this.affineTransform = affineTransform;
-	}
-	
-	public void setSelected(boolean isSelected) {
-		this.isSelected = isSelected;
 	}
 
 	// methods
@@ -77,22 +86,28 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 		this.eAction = null;
 		if (this.isSelected) {
 			for (int i = 0; i < this.anchors.length - 1; i++) {
-				Shape transformedAnchor = this.affineTransform.createTransformedShape(this.anchors[i]);
-				if (transformedAnchor.contains(x, y)) {
-					this.selectedAnchor = EAnchors.values()[i]; // 앵커에서의 몇번째인지
+				if (this.affineTransform.createTransformedShape(this.anchors[i]).contains(x, y)) {
+					this.selectedAnchor = EAnchors.values()[i];
 					this.eAction = EAction.eResize;
 				}
 			}
-			Shape transformedAnchor = this.affineTransform.createTransformedShape(this.anchors[EAnchors.RR.ordinal()]);
-			if (transformedAnchor.contains(x, y)) {
+			if (this.affineTransform.createTransformedShape(this.anchors[EAnchors.RR.ordinal()]).contains(x, y)) {
 				this.eAction = EAction.eRotate;
 			}
 		}
-		Shape transformedShape = this.affineTransform.createTransformedShape(this.shape);
-		if (transformedShape.contains(x, y)) {
+		if (this.affineTransform.createTransformedShape(this.shape).contains(x, y)) {
 			this.eAction = EAction.eMove;
 		}
 		return this.eAction;
+	}
+
+	public void setSelected(boolean isSelected) {
+
+		this.isSelected = isSelected;
+	}
+
+	public void initTransform(Graphics2D graphics2d, int x, int y) {
+
 	}
 
 	public void move(Graphics2D graphics2d, int dx, int dy) {
@@ -100,18 +115,86 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 		this.affineTransform.translate(dx, dy);
 		this.draw(graphics2d);
 	}
-	
-	public void resize(Graphics2D graphics2d, int x, int y) {
+
+	public void resize(Graphics2D graphics2d, double dx, double dy) {
 		this.draw(graphics2d);
-		this.affineTransform.translate(x, y);
+		
+		Rectangle bound = this.shape.getBounds();
+		
+		dx = dx / bound.getWidth();
+		dy = dy / bound.getHeight();
+
+		switch (this.selectedAnchor) {
+		case x0y0:
+			this.affineTransform.setToTranslation(bound.getMinX() + bound.getWidth(), bound.getMinY() + bound.getHeight()); //중심점 잡고
+			this.affineTransform.scale(1 - dx, 1 - dy); //scale
+			this.affineTransform.translate(-(bound.getMinX() + bound.getWidth()), -(bound.getMinY() + bound.getHeight())); //옮겨진 위치 다시 잡아주기
+			break;
+
+		case x0y1:
+			this.affineTransform.setToTranslation(bound.getMinX() + bound.getWidth(), 0);
+			this.affineTransform.scale(1 - dx, 1);
+			this.affineTransform.translate(-(bound.getMinX() + bound.getWidth()), 0);
+			break;
+
+		case x0y2:
+			this.affineTransform.setToTranslation(bound.getMinX() + bound.getWidth(), bound.getMinY());
+			this.affineTransform.scale(1 - dx, 1 + dy);
+			this.affineTransform.translate(-(bound.getMinX() + bound.getWidth()), -(bound.getMinY()));
+			break;
+
+		case x1y0:
+			this.affineTransform.setToTranslation(0, bound.getMinY() + bound.getHeight());
+			this.affineTransform.scale(1, 1 - dy);
+			this.affineTransform.translate(0, -(bound.getMinY() + bound.getHeight()));
+			break;
+
+		case x1y2:
+			this.affineTransform.setToTranslation(0, bound.getMinY());
+			this.affineTransform.scale(1, 1 + dy);
+			this.affineTransform.translate(0, -(bound.getMinY()));
+			break;
+
+		case x2y0:
+			this.affineTransform.setToTranslation(bound.getMinX(), bound.getMinY() + bound.getHeight());
+			this.affineTransform.scale(1 + dx, 1 - dy);
+			this.affineTransform.translate(-(bound.getMinX()), -(bound.getMinY() + bound.getHeight()));
+			break;
+
+		case x2y1:
+			this.affineTransform.setToTranslation(bound.getMinX(), 0);
+			this.affineTransform.scale(1 + dx, 1);
+			this.affineTransform.translate(-(bound.getMinX()), 0);
+			break;
+
+		case x2y2:
+			this.affineTransform.setToTranslation(bound.getMinX(), bound.getMinY());
+			this.affineTransform.scale(1 + dx, 1 + dy);
+			this.affineTransform.translate(-(bound.getMinX()), -(bound.getMinY()));
+			break;
+		default:
+			break;
+		}
+
 		this.draw(graphics2d);
-	}
-	
-	public void addTransformedShape() {
-		AffineTransform affineTransform = this.affineTransform;
-		this.affinetransformers.add(affineTransform);
 	}
 
+	public void rotate(Graphics2D graphics2d, Point pStart, Point pEnd) {
+		this.draw(graphics2d);
+		double centerX = this.shape.getBounds().getCenterX();
+		double centerY = this.shape.getBounds().getCenterY();
+
+		double startAngle = Math.toDegrees(Math.atan2(centerX - pStart.x, centerY - pStart.y));
+		double endAngle = Math.toDegrees(Math.atan2(centerX - pEnd.x, centerY - pEnd.y));
+		double rotationAngle = startAngle - endAngle;
+
+		if (rotationAngle < 0) {
+			rotationAngle += 360;
+		}
+		this.affineTransform.rotate(Math.toRadians(rotationAngle), centerX, centerY);
+		this.draw(graphics2d);
+
+	}
 
 	private void drawAnchors(Graphics2D graphics) {
 		int wAnchor = GConstants.wAnchor;
@@ -150,11 +233,11 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 
 	public void draw(Graphics2D graphics) {
 		graphics.draw(this.affineTransform.createTransformedShape(this.shape));
-		
-		if(isSelected) {
+
+		if (isSelected) {
 			this.drawAnchors(graphics);
 		}
-		
+
 	}
 
 	public void animate(Graphics2D graphics2d, int x, int y) {
@@ -164,8 +247,6 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 	}
 
 	// interface
-	public abstract GShapeTool newInstance();
-
 	public abstract void setInitialPoint(int x, int y);
 
 	public void setIntermediatePoint(int x, int y) {

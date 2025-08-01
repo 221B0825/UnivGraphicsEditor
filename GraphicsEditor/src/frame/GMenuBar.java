@@ -1,9 +1,10 @@
-package menu;
+package frame;
 
 import javax.swing.JMenuBar;
 
-import frame.GPanel;
 import main.GConstants.EMenu;
+import menu.GEditMenu;
+import menu.GFileMenu;
 
 public class GMenuBar extends JMenuBar {
 	private static final long serialVersionUID = 1L;
@@ -17,12 +18,10 @@ public class GMenuBar extends JMenuBar {
 		
 		this.editMenu = new GEditMenu(EMenu.eEdit.getText());
 		this.add(this.editMenu);
-		
 	}
+	
 	public void setAssciation(GPanel panel) {
 		this.fileMenu.setAssciation(panel);
 		this.editMenu.setAssciation(panel);
 	}
-
-
 }

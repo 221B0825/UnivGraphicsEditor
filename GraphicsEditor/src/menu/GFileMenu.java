@@ -36,7 +36,7 @@ public class GFileMenu extends JMenu {
 		ActionHandler actionHandler = new ActionHandler();
 		for (EFileMenuItem efileMenuItem : EFileMenuItem.values()) {
 			JMenuItem menuItem = new JMenuItem(efileMenuItem.getText());
-			menuItem.setActionCommand(efileMenuItem.name());// eNew--> 이게 스트링으로 변함(베리어블 주소로 가리키고 있지만 스트링으로 변함)
+			menuItem.setActionCommand(efileMenuItem.name());
 			menuItem.addActionListener(actionHandler);
 			this.add(menuItem);
 		}
@@ -60,7 +60,6 @@ public class GFileMenu extends JMenu {
 			e.printStackTrace();
 
 		}
-
 	}
 
 	private void saveFile() {

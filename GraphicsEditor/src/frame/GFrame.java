@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 
 import main.GConstants;
-import menu.GMenuBar;
 
 public class GFrame extends JFrame {
 	// attributes
@@ -14,6 +13,7 @@ public class GFrame extends JFrame {
 	private GPanel panel; // 자식을 외부에서 보일 수 있도록 노출시킬 수 있음
 	private GToolBar toolBar;
 	private GMenuBar menuBar;
+	
 	//constructor
 	public GFrame() {
 		//내부 속성 --> 웬만하면 변하지 않음

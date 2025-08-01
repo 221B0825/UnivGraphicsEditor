@@ -14,8 +14,11 @@ import javax.swing.JPanel;
 
 import main.GConstants.EAction;
 import main.GConstants.EDrawingStyle;
+import menu.GUndoStack;
 import shapeTools.GShapeTool;
 import transformer.GMover;
+import transformer.GResizer;
+import transformer.GRotater;
 import transformer.GTransformer;
 
 public class GPanel extends JPanel {
@@ -25,9 +28,11 @@ public class GPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	// components
-	private GMouseHandler mouseHandler;
 	private Vector<GShapeTool> shapes;
-//	private Object[][] objects;
+	private GMouseHandler mouseHandler;
+
+	private GUndoStack undoStack;
+
 	// association
 
 	// working Objects
@@ -41,16 +46,17 @@ public class GPanel extends JPanel {
 	// getters and setters
 	public Vector<GShapeTool> getShapes() {
 		return this.shapes;
+
 	}
 
-	// 도형들 전체 선택
 	public void setShapes(Vector<GShapeTool> shapes) {
 		this.shapes = shapes;
 		this.repaint();
 	}
 
-	public void setSelection(GShapeTool shapeTool) { //선택된 도구 - GToolBar에서 사용
+	public void setSelection(GShapeTool shapeTool) {
 		this.shapeTool = shapeTool;
+
 	}
 
 	public boolean isModified() {
@@ -70,6 +76,9 @@ public class GPanel extends JPanel {
 		this.addMouseMotionListener(this.mouseHandler);
 		this.addMouseWheelListener(this.mouseHandler);
 
+		this.undoStack = new GUndoStack();
+		this.undoStack.push(this.deepCopy(this.shapes));
+
 		this.bModified = false;
 
 	}
@@ -82,11 +91,26 @@ public class GPanel extends JPanel {
 		this.shapes.clear();
 		this.repaint();
 	}
-	
-	public GShapeTool getSelected () {
-		return this.selectedShape;
-	}
+
 	// methods
+	public Vector<GShapeTool> deepCopy(Vector<GShapeTool> original) {
+		
+		Vector<GShapeTool> clonedShapes = (Vector<GShapeTool>) original.clone();
+		for (int i = 0; i < original.size(); i++) {
+			clonedShapes.set(i, (GShapeTool) original.get(i).clone());
+		}
+		return clonedShapes;
+	}
+
+	public void undo() {
+		this.shapes = this.deepCopy(this.undoStack.undo());
+		this.repaint();
+	}
+
+	public void redo() {
+		this.shapes = this.deepCopy(this.undoStack.redo());
+		this.repaint();
+	}
 
 	public void paint(Graphics graphics) {
 		super.paint(graphics);// 부모가 원래 해야할 일들을 함, 자기를 칠하는 건데 부모가 먼저 해야 할 일들을 함(백그라운드 칠하기 등)
@@ -104,26 +128,18 @@ public class GPanel extends JPanel {
 		this.repaint();
 	}
 
-	// 여기서 바뀌어야 함
-	private GShapeTool onShape(int x, int y) { // 어떤 도형인지 확인함
-		EAction eAction = null;
+	private GShapeTool onShape(int x, int y) {
 		for (GShapeTool shape : this.shapes) {
-			eAction = shape.containes(x, y); //어떤 액션인지 판별 (Move, Resize, Rotate)
+			EAction eAction = shape.containes(x, y);
 			if (eAction != null) {
 				return shape;
 			}
-		}
-		if (eAction == null) { //아무것도 선택하지 않았을 경우
-			for (GShapeTool shape : this.shapes) {
-				shape.setSelected(false);
-			}
-			this.repaint();
 		}
 		return null;
 	}
 
 	private void initDrawing(int x, int y) {
-		this.selectedShape = this.shapeTool.newInstance();
+		this.selectedShape = (GShapeTool) this.shapeTool.clone();
 		this.selectedShape.setInitialPoint(x, y);
 	}
 
@@ -142,6 +158,7 @@ public class GPanel extends JPanel {
 		this.shapes.add(this.selectedShape);
 		this.bModified = true;
 
+		this.undoStack.push(this.deepCopy(this.shapes));
 	}
 
 	private void initTransforming(GShapeTool selectedShape, int x, int y) {
@@ -153,8 +170,10 @@ public class GPanel extends JPanel {
 			this.transformer = new GMover(this.selectedShape);
 			break;
 		case eResize:
+			this.transformer = new GResizer(this.selectedShape);
 			break;
 		case eRotate:
+			this.transformer = new GRotater(this.selectedShape);
 			break;
 		default:
 			break;
@@ -174,7 +193,11 @@ public class GPanel extends JPanel {
 		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
 		graphics2d.setXORMode(this.getBackground());
 		this.transformer.finishTransforming(graphics2d, x, y);
+
+		this.setSelected(this.selectedShape);
 		this.bModified = true;
+
+		this.undoStack.push(this.deepCopy(this.shapes));
 	}
 
 	////////////////////////////////////////////////////

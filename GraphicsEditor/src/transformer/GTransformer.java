@@ -13,25 +13,13 @@ public abstract class GTransformer {
 		this.selectedShape = selectedShape;
 	}
 
-	public void initTransforming(Graphics2D graphics2d, int x, int y) {
-		this.px = x;
-		this.py = y;
-	}
-
-	public void keepTransforming(Graphics2D graphics2d, int x, int y) {
-		// transform 안에서 지우고 그림
-		this.transform(graphics2d, x, y);
-		this.px = x;
-		this.py = y;
-	}
+	abstract public void initTransforming(Graphics2D graphics2d, int x, int y);
+	abstract public void keepTransforming(Graphics2D graphics2d, int x, int y);
 
 	public void finishTransforming(Graphics2D graphics2d, int x, int y) {
-		this.selectedShape.addTransformedShape();
-	}
 
+	}
 	public void continueTransforming(Graphics2D graphics2d, int x, int y) {
 
 	}
-
-	abstract public void transform(Graphics2D graphics2d, int x, int y);
 }

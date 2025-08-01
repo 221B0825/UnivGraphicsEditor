@@ -7,6 +7,7 @@ import shapeTools.GOval;
 import shapeTools.GPolygon;
 import shapeTools.GRectangle;
 import shapeTools.GShapeTool;
+import shapeTools.GLine;
 
 public class GConstants {
 
@@ -33,7 +34,7 @@ public class GConstants {
 	public enum EShapeTool {
 		eRectangle(new GRectangle(), "Rectangle"),
 		eOval(new GOval(), "Oval"),
-		eLine(new GRectangle(), "Line"),
+		eLine(new GLine(), "Line"),
 		ePolygon(new GPolygon(), "Polygon");
 
 		private GShapeTool GShapeTool;
@@ -86,15 +87,18 @@ public class GConstants {
 			return this.text;
 		}
 	}
-	
 	public enum EEditMenuItem{
-		eUndo("되돌리기"),
-		eRedo("재실행");
+		eUndo("Undo"),
+		eRedo("Redo"),
+		eCut("Cut"),
+		eCopy("Copy"),
+		ePaste("Paste"),
+		eGroup("Group"),
+		eUngroup("Ungroup");
 		
 		private String text;
-		
 		private EEditMenuItem(String text) {
-			this.text =  text;
+			this.text = text;
 		}
 		public String getText() {
 			return this.text;

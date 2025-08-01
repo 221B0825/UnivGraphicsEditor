@@ -1,5 +1,6 @@
 package shapeTools;
 
+import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 
 import main.GConstants.EDrawingStyle;
@@ -12,16 +13,16 @@ public class GOval extends GShapeTool {
 		super(EDrawingStyle.e2PointDrawing); 
 		this.shape = new Ellipse2D.Float();
 	}
-	@Override
-	public GShapeTool newInstance() {
-		return new GOval();
-		
+	public Object clone() {
+		GShapeTool cloned = (GShapeTool) super.clone();
+		cloned.shape = (Shape) ((Ellipse2D.Float)(this.shape)).clone();
+		return cloned;
 	}
 	@Override
 	public void setInitialPoint(int x, int y) {
 		Ellipse2D ellipse = (Ellipse2D) this.shape;
 		ellipse.setFrame(x, y, 0, 0);
-		//this.draw(this.ellipse);		
+		//this.draw(this.ellipse);
 	}
 
 	@Override
@@ -34,7 +35,7 @@ public class GOval extends GShapeTool {
 	public void movePoint(int x, int y) {
 		Ellipse2D ellipse = (Ellipse2D) this.shape;
 		ellipse.setFrame(ellipse.getX(),ellipse.getY(), x-ellipse.getX(), y-ellipse.getY());
-	
+
 	}
 
 }

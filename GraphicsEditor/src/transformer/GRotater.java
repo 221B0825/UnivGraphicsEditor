@@ -1,12 +1,13 @@
 package transformer;
 
 import java.awt.Graphics2D;
+import java.awt.Point;
 
 import shapeTools.GShapeTool;
 
-public class GMover extends GTransformer {
+public class GRotater extends GTransformer {
 
-	public GMover(GShapeTool selectedShape) {
+	public GRotater(GShapeTool selectedShape) {
 		super(selectedShape);
 	}
 	
@@ -20,9 +21,10 @@ public class GMover extends GTransformer {
 
 	@Override
 	public void keepTransforming(Graphics2D graphics2d, int x, int y) {
-		this.selectedShape.move(graphics2d, x-px, y-py);
+		this.selectedShape.rotate(graphics2d, new Point(px, py), new Point(x,y));
 		this.px = x;
 		this.py = y;
 	}
+
 
 }
