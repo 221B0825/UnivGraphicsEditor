@@ -36,10 +36,5 @@ public class GOval extends GShapeTool {
 		ellipse.setFrame(ellipse.getX(),ellipse.getY(), x-ellipse.getX(), y-ellipse.getY());
 
 	}
-	@Override
-	public void moveShape(int dx, int dy) {
-		Ellipse2D ellipse = (Ellipse2D) this.shape;
-		ellipse.setFrame(ellipse.getX() + dx, ellipse.getY() + dy, ellipse.getWidth(), ellipse.getHeight());
-	}
 
 }

@@ -14,35 +14,20 @@ public class GConstants {
 		public final static Point point = new Point(200, 300);
 		public final static Dimension dimesion = new Dimension(400, 600);
 	}
-	
-	public static class CAnchor{
-		public final static int wAnchor = 10;
-		public final static int hAnchor = 10;
-	}
 
 	public enum EDrawingStyle {
 		e2PointDrawing,
 		eNPointDrawing
 	};
-	public enum EDrawingState{
-		eStop,
-		eDrawing,
+	
+	public final static int wAnchor = 10;
+	public final static int hAnchor = 10;
+	
+	public enum EAction{
 		eMove,
 		eResize,
 		eRotate,
 		eShear
-	};
-
-	public enum EAnchors {	
-		x0y0,
-		x0y1, 
-		x0y2,
-		x1y0,
-		x1y2,
-		x2y0,
-		x2y1,
-		x2y2,
-		RR;
 	}
 
 	public enum EShapeTool {
@@ -53,6 +38,7 @@ public class GConstants {
 
 		private GShapeTool GShapeTool;
 		private String text;
+		private EDrawingStyle eDrawingState;
 
 		private EShapeTool(GShapeTool GShapeTool, String text) {
 			this.GShapeTool = GShapeTool;

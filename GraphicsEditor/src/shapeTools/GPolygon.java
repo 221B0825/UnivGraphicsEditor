@@ -40,10 +40,5 @@ public class GPolygon extends GShapeTool {
 		polygon.xpoints[polygon.npoints-1] = x;
 		polygon.ypoints[polygon.npoints-1] = y;
 	}
-	@Override
-	public void moveShape(int dx, int dy) {
-		Polygon polygon = (Polygon)this.shape;
-		polygon.translate(dx, dy);
-	}
 	
 }
