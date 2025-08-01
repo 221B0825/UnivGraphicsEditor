@@ -14,6 +14,9 @@ public class GMenuBar extends JMenuBar {
 		this.add(this.fileMenu);
 		
 	}
+	public boolean getCheckSave() {
+		return this.fileMenu.checkSaveOrNot();
+	}
 	public void setAssciation(GPanel panel) {
 		this.fileMenu.setAssciation(panel);
 		

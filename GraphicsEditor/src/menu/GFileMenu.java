@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -25,12 +26,10 @@ public class GFileMenu extends JMenu {
 	private static final long serialVersionUID = 1L;
 
 	// components
-	
+
 	// associations
 	private GPanel panel;
-	
-	//working variable
-	private File currentFile; //현재 작업하고 있는 파일
+	private File file;
 
 	public GFileMenu(String text) {
 		super(text);
@@ -41,8 +40,7 @@ public class GFileMenu extends JMenu {
 			menuItem.addActionListener(actionHandler);
 			this.add(menuItem);
 		}
-		this.currentFile = null;
-	
+		this.file = null;
 	}
 
 	public void setAssciation(GPanel panel) {
@@ -50,115 +48,94 @@ public class GFileMenu extends JMenu {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void openFile(File file) {
-		//File file = new File("test");
-		this.currentFile = file;
+	private void openFile() {
 		try {
 			ObjectInputStream objectInputStream = new ObjectInputStream(
-					new BufferedInputStream(new FileInputStream(currentFile)));
+					new BufferedInputStream(new FileInputStream(this.file)));
 			Vector<GShapeTool> shapes = (Vector<GShapeTool>) objectInputStream.readObject();
 			this.panel.setShapes(shapes);
 			objectInputStream.close();
 
 		} catch (ClassNotFoundException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 
 		}
 
 	}
 
-	private void saveFile(File file) {
-		//File file = new File("test");
-		this.currentFile = file;
+	private void saveFile() {
 		try {
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(
-					new BufferedOutputStream(new FileOutputStream(currentFile)));
+					new BufferedOutputStream(new FileOutputStream(this.file)));
 			objectOutputStream.writeObject(this.panel.getShapes());
 			objectOutputStream.close();
+			this.panel.setModified(false);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
 
+	protected boolean checkSaveOrNot() {
+		boolean bCancel = true;
+		if (this.panel.isModified()) {
+			int reply = JOptionPane.showConfirmDialog(this.panel, "변경내용을 저장할까요?");
+			if (reply == JOptionPane.OK_OPTION) {
+				this.save();
+				bCancel = false;
+			} else if (reply == JOptionPane.NO_OPTION) {
+				this.panel.setModified(false);
+				bCancel = false;
+			}
+		} else {
+			bCancel = false;
+		}
+		return bCancel;
+	}
 
 	private void nnew() {
-		if (this.panel.isModified()) {
-			// save 현재 사용하고 있는 패널에서 변경사항이 있을 경우
-			int reply = JOptionPane.showConfirmDialog(this.panel, "변경내용을 저장할까요?");
-			if (reply == JOptionPane.OK_OPTION) { //저장하겠다고 했을 때
-				if(this.currentFile == null) { //저장한적이 없으면
-					this.saveAs();
-					this.panel.clearScreen();
-					this.currentFile = null;
-					this.panel.setModified(false);
-				}else { //저장된 파일이면
-					this.save();
-					this.panel.clearScreen();
-					this.currentFile = null;
-					this.panel.setModified(false);
-					
-				}
-			} else if (reply == JOptionPane.NO_OPTION) { //저장하지 않겠다고 했을 때
-				this.panel.clearScreen();
-				this.currentFile = null;
-				this.panel.setModified(false);
-			} else if (reply == JOptionPane.CANCEL_OPTION) { //취소했을 때
-
-			}
-		}else { //파일을 열거나 저장 후, 새 파일을 만들 때 변경사항이 없을 경우
+		if (!checkSaveOrNot()) {
 			this.panel.clearScreen();
-			this.currentFile = null;
-			this.panel.setModified(false);
+			this.file = null;
 		}
-
 	}
 
 	private void open() {
-		if (this.panel.isModified()) {
-			// 현재 보고있는 파일에서 변경사항이 있을 때
-			if(this.currentFile != null) { //저장되어 있는 파일이면
-				this.save();
-			}else { //저장되어 있지 않은 파일이면
-				this.saveAs();
+		if (!checkSaveOrNot()) { // is not cancel
+			JFileChooser chooser = new JFileChooser();
+			int returnVal = chooser.showOpenDialog(this.panel);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				this.file = chooser.getSelectedFile();
+				this.openFile();
 			}
-		}
-		JFileChooser chooser = new JFileChooser();
-		int returnVal = chooser.showOpenDialog(this.panel);
-		if(returnVal == JFileChooser.APPROVE_OPTION) {
-			this.currentFile = chooser.getSelectedFile();
-			this.openFile(this.currentFile);
-			this.panel.setModified(false);	
-		}
-		
+		} // else {cancel}
 	}
 
 	private void save() {
 		if (this.panel.isModified()) {
-			// save 저장한 적이 있으면(파일 명이 존재하면) 그 파일에 그냥 저장하면 되고
-			if(this.currentFile != null) {
-				this.saveFile(this.currentFile);
-			}else {//저장한 적이 없으면 어디에 저장할 것인지 띄우고 이름 넣고 저장해야 함
+			if (this.file == null) {
 				this.saveAs();
+			} else {
+				this.saveFile();
 			}
-			this.panel.setModified(false);
 		}
 
 	}
 
 	private void saveAs() {
+		// save
 		JFileChooser chooser = new JFileChooser();
 		int returnVal = chooser.showSaveDialog(this.panel);
-		if(returnVal == JFileChooser.APPROVE_OPTION) {
-			//새로 파일을 만듦
-			File file = chooser.getSelectedFile();
-			this.currentFile = file;
-			this.saveFile(file);
-			this.panel.setModified(false);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			this.file = chooser.getSelectedFile();
+			this.saveFile();
 		}
-		
 
+	}
+	private void exitProgram() {
+		if (!checkSaveOrNot()) {
+			System.exit(0);
+		}
 	}
 
 	private class ActionHandler implements ActionListener {
@@ -181,6 +158,7 @@ public class GFileMenu extends JMenu {
 			case ePrint:
 				break;
 			case eExit:
+				exitProgram();
 				break;
 			default:
 				break;
