@@ -27,6 +27,7 @@ public class GPanel extends JPanel {
 	// components
 	private GMouseHandler mouseHandler;
 	private Vector<GShapeTool> shapes;
+//	private Object[][] objects;
 	// association
 
 	// working Objects
@@ -35,25 +36,27 @@ public class GPanel extends JPanel {
 	private GShapeTool selectedShape; // 그걸 카피해서 그림그리는 애
 	private GTransformer transformer;
 	private boolean bModified;
+
 	////////////////////////////////////////////////////
 	// getters and setters
 	public Vector<GShapeTool> getShapes() {
 		return this.shapes;
-
 	}
 
+	// 도형들 전체 선택
 	public void setShapes(Vector<GShapeTool> shapes) {
 		this.shapes = shapes;
 		this.repaint();
 	}
 
-	public void setSelection(GShapeTool shapeTool) {
+	public void setSelection(GShapeTool shapeTool) { //선택된 도구 - GToolBar에서 사용
 		this.shapeTool = shapeTool;
-
 	}
+
 	public boolean isModified() {
 		return this.bModified;
 	}
+
 	public void setModified(boolean bModified) {
 		this.bModified = bModified;
 	}
@@ -66,7 +69,7 @@ public class GPanel extends JPanel {
 		this.addMouseListener(this.mouseHandler);
 		this.addMouseMotionListener(this.mouseHandler);
 		this.addMouseWheelListener(this.mouseHandler);
-		
+
 		this.bModified = false;
 
 	}
@@ -74,9 +77,14 @@ public class GPanel extends JPanel {
 	public void initialize() {
 		this.setBackground(Color.WHITE);
 	}
+
 	public void clearScreen() {
 		this.shapes.clear();
 		this.repaint();
+	}
+	
+	public GShapeTool getSelected () {
+		return this.selectedShape;
 	}
 	// methods
 
@@ -96,12 +104,20 @@ public class GPanel extends JPanel {
 		this.repaint();
 	}
 
+	// 여기서 바뀌어야 함
 	private GShapeTool onShape(int x, int y) { // 어떤 도형인지 확인함
+		EAction eAction = null;
 		for (GShapeTool shape : this.shapes) {
-			EAction eAction = shape.containes(x, y);
+			eAction = shape.containes(x, y); //어떤 액션인지 판별 (Move, Resize, Rotate)
 			if (eAction != null) {
 				return shape;
 			}
+		}
+		if (eAction == null) { //아무것도 선택하지 않았을 경우
+			for (GShapeTool shape : this.shapes) {
+				shape.setSelected(false);
+			}
+			this.repaint();
 		}
 		return null;
 	}

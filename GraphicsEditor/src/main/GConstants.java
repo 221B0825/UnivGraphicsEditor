@@ -86,4 +86,18 @@ public class GConstants {
 			return this.text;
 		}
 	}
+	
+	public enum EEditMenuItem{
+		eUndo("되돌리기"),
+		eRedo("재실행");
+		
+		private String text;
+		
+		private EEditMenuItem(String text) {
+			this.text =  text;
+		}
+		public String getText() {
+			return this.text;
+		}
+	}
 }

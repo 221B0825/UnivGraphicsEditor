@@ -1,6 +1,7 @@
 package shapeTools;
 
 import java.awt.Rectangle;
+import java.awt.Shape;
 
 import main.GConstants.EDrawingStyle;
 
@@ -26,14 +27,11 @@ public class GRectangle extends GShapeTool {
 	@Override
 	public void setInitialPoint(int x, int y) {
 		Rectangle rectangle = (Rectangle) this.shape;
-		rectangle.setLocation(x,y);
-		rectangle.setSize(0,0);
-		
+		rectangle.setLocation(x,y);		
 	}
 
 	@Override
 	public void setFinalPoint(int x, int y) {
-		// TODO Auto-generated method stub
 		
 	}
 	
@@ -41,7 +39,6 @@ public class GRectangle extends GShapeTool {
 	public void movePoint(int x, int y) {
 		Rectangle rectangle = (Rectangle) this.shape;
 		rectangle.setSize(x-rectangle.x, y-rectangle.y);
-
 	}
 	
 }

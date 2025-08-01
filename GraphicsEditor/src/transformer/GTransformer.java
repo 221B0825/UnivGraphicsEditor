@@ -26,7 +26,7 @@ public abstract class GTransformer {
 	}
 
 	public void finishTransforming(Graphics2D graphics2d, int x, int y) {
-
+		this.selectedShape.addTransformedShape();
 	}
 
 	public void continueTransforming(Graphics2D graphics2d, int x, int y) {

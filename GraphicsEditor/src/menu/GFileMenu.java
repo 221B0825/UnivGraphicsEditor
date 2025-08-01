@@ -76,7 +76,7 @@ public class GFileMenu extends JMenu {
 
 	}
 
-	protected boolean checkSaveOrNot() {
+	private boolean checkSaveOrNot() {
 		boolean bCancel = true;
 		if (this.panel.isModified()) {
 			int reply = JOptionPane.showConfirmDialog(this.panel, "변경내용을 저장할까요?");

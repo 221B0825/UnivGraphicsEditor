@@ -6,12 +6,13 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
-import java.awt.geom.Ellipse2D.Double;
 import java.io.Serializable;
+import java.util.Vector;
 
 import main.GConstants;
 import main.GConstants.EAction;
 import main.GConstants.EDrawingStyle;
+import transformer.GTransformer;
 
 abstract public class GShapeTool implements Serializable, Cloneable {
 	// attributes
@@ -28,6 +29,8 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 	private EAnchors selectedAnchor;
 	private EAction eAction;
 	private AffineTransform affineTransform;
+	private Vector<AffineTransform> affinetransformers;
+	
 	// working variables
 
 	// constructors
@@ -43,6 +46,9 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 		
 		this.affineTransform = new AffineTransform();
 		this.affineTransform.setToIdentity();
+		
+		this.affinetransformers = new Vector<AffineTransform>();
+		
 	}
 
 	// getters & setters
@@ -52,30 +58,41 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 	public EAction getAction() {
 		return this.eAction;
 	}
+	public Vector<AffineTransform> getTransformedShape() {
+		return this.affinetransformers;
+	}
+	public AffineTransform getAffineTransform() {
+		return this.affineTransform;
+	}
+	public void setAffineTransform(AffineTransform affineTransform) {
+		this.affineTransform = affineTransform;
+	}
+	
+	public void setSelected(boolean isSelected) {
+		this.isSelected = isSelected;
+	}
 
 	// methods
 	public EAction containes(int x, int y) {
 		this.eAction = null;
 		if (this.isSelected) {
 			for (int i = 0; i < this.anchors.length - 1; i++) {
-				if (this.anchors[i].contains(x, y)) {
+				Shape transformedAnchor = this.affineTransform.createTransformedShape(this.anchors[i]);
+				if (transformedAnchor.contains(x, y)) {
 					this.selectedAnchor = EAnchors.values()[i]; // 앵커에서의 몇번째인지
 					this.eAction = EAction.eResize;
 				}
 			}
-			if (this.anchors[EAnchors.RR.ordinal()].contains(x, y)) {
+			Shape transformedAnchor = this.affineTransform.createTransformedShape(this.anchors[EAnchors.RR.ordinal()]);
+			if (transformedAnchor.contains(x, y)) {
 				this.eAction = EAction.eRotate;
 			}
 		}
-		if (this.shape.contains(x, y)) {
+		Shape transformedShape = this.affineTransform.createTransformedShape(this.shape);
+		if (transformedShape.contains(x, y)) {
 			this.eAction = EAction.eMove;
 		}
 		return this.eAction;
-	}
-
-	public void setSelected(boolean isSelected) {
-
-		this.isSelected = isSelected;
 	}
 
 	public void move(Graphics2D graphics2d, int dx, int dy) {
@@ -88,6 +105,11 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 		this.draw(graphics2d);
 		this.affineTransform.translate(x, y);
 		this.draw(graphics2d);
+	}
+	
+	public void addTransformedShape() {
+		AffineTransform affineTransform = this.affineTransform;
+		this.affinetransformers.add(affineTransform);
 	}
 
 
@@ -128,10 +150,10 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 
 	public void draw(Graphics2D graphics) {
 		graphics.draw(this.affineTransform.createTransformedShape(this.shape));
+		
 		if(isSelected) {
 			this.drawAnchors(graphics);
 		}
-		
 		
 	}
 

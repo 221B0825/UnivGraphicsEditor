@@ -21,7 +21,7 @@ public class GOval extends GShapeTool {
 	public void setInitialPoint(int x, int y) {
 		Ellipse2D ellipse = (Ellipse2D) this.shape;
 		ellipse.setFrame(x, y, 0, 0);
-		//this.draw(this.ellipse);
+		//this.draw(this.ellipse);		
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class GOval extends GShapeTool {
 	public void movePoint(int x, int y) {
 		Ellipse2D ellipse = (Ellipse2D) this.shape;
 		ellipse.setFrame(ellipse.getX(),ellipse.getY(), x-ellipse.getX(), y-ellipse.getY());
-
+	
 	}
 
 }
