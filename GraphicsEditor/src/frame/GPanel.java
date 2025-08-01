@@ -16,7 +16,6 @@ import main.GConstants.EAction;
 import main.GConstants.EDrawingStyle;
 import shapeTools.GShapeTool;
 import transformer.GMover;
-import transformer.GResizer;
 import transformer.GTransformer;
 
 public class GPanel extends JPanel {
@@ -35,7 +34,7 @@ public class GPanel extends JPanel {
 	private GShapeTool shapeTool; // 도구에 선택된 애가 있음
 	private GShapeTool selectedShape; // 그걸 카피해서 그림그리는 애
 	private GTransformer transformer;
-	
+	private boolean bModified;
 	////////////////////////////////////////////////////
 	// getters and setters
 	public Vector<GShapeTool> getShapes() {
@@ -52,6 +51,12 @@ public class GPanel extends JPanel {
 		this.shapeTool = shapeTool;
 
 	}
+	public boolean isModified() {
+		return this.bModified;
+	}
+	public void setModified(boolean bModified) {
+		this.bModified = bModified;
+	}
 
 	// constructors
 	public GPanel() {
@@ -61,11 +66,17 @@ public class GPanel extends JPanel {
 		this.addMouseListener(this.mouseHandler);
 		this.addMouseMotionListener(this.mouseHandler);
 		this.addMouseWheelListener(this.mouseHandler);
+		
+		this.bModified = false;
 
 	}
 
 	public void initialize() {
 		this.setBackground(Color.WHITE);
+	}
+	public void clearScreen() {
+		this.shapes.clear();
+		this.repaint();
 	}
 	// methods
 
@@ -77,7 +88,7 @@ public class GPanel extends JPanel {
 	}
 
 	private void setSelected(GShapeTool selectedShape) {
-		for(GShapeTool shape : this.shapes) {
+		for (GShapeTool shape : this.shapes) {
 			shape.setSelected(false);
 		}
 		this.selectedShape = selectedShape;
@@ -85,7 +96,7 @@ public class GPanel extends JPanel {
 		this.repaint();
 	}
 
-	private GShapeTool onShape(int x, int y) { //어떤 도형인지 확인함
+	private GShapeTool onShape(int x, int y) { // 어떤 도형인지 확인함
 		for (GShapeTool shape : this.shapes) {
 			EAction eAction = shape.containes(x, y);
 			if (eAction != null) {
@@ -105,54 +116,49 @@ public class GPanel extends JPanel {
 	}
 
 	private void keepDrawing(int x, int y) {
-		// exclusive or mode
 		Graphics2D graphics2D = (Graphics2D) getGraphics();
 		graphics2D.setXORMode(getBackground());
-		// erase
 		this.selectedShape.animate(graphics2D, x, y);
 	}
 
 	private void finishDrawing(int x, int y) {
 		this.selectedShape.setFinalPoint(x, y);
 		this.shapes.add(this.selectedShape);
+		this.bModified = true;
 
 	}
 
-	private void initTransforming(GShapeTool selectedShape,int x, int y) {
+	private void initTransforming(GShapeTool selectedShape, int x, int y) {
 
 		this.selectedShape = selectedShape;
 		EAction eAction = this.selectedShape.getAction();
-		switch(eAction) {
+		switch (eAction) {
 		case eMove:
 			this.transformer = new GMover(this.selectedShape);
 			break;
 		case eResize:
-			this.transformer = new GResizer(this.selectedShape);
 			break;
 		case eRotate:
 			break;
-			//셋 중 하나도 아닐 떄
 		default:
 			break;
 		}
-		
 		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
 		graphics2d.setXORMode(this.getBackground());
-		this.transformer.initTransforming(graphics2d,x,y);
+		this.transformer.initTransforming(graphics2d, x, y);
 	}
 
 	private void keepTransforming(int x, int y) {
 		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
 		graphics2d.setXORMode(this.getBackground());
-		
 		this.transformer.keepTransforming(graphics2d, x, y);
 	}
 
 	private void finishTransforming(int x, int y) {
 		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
 		graphics2d.setXORMode(this.getBackground());
-		
 		this.transformer.finishTransforming(graphics2d, x, y);
+		this.bModified = true;
 	}
 
 	////////////////////////////////////////////////////
@@ -177,7 +183,7 @@ public class GPanel extends JPanel {
 						this.isDrawing = true;
 					}
 				} else {
-					initTransforming(selectedShape,e.getX(), e.getY());
+					initTransforming(selectedShape, e.getX(), e.getY());
 					this.isTransforming = true;
 				}
 			}
