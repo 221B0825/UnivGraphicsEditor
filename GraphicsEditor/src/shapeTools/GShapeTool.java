@@ -2,15 +2,19 @@ package shapeTools;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Ellipse2D.Double;
 import java.io.Serializable;
 
 import main.GConstants;
 import main.GConstants.EAction;
 import main.GConstants.EDrawingStyle;
+import shapeTools.GShapeTool.EAnchors;
 
 abstract public class GShapeTool implements Serializable, Cloneable {
 	// attributes
@@ -25,6 +29,8 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 	private Ellipse2D[] anchors;
 	private boolean isSelected;
 	private EAnchors selectedAnchor;
+	private EAction eAction;
+	private AffineTransform affineTransform;
 	// working variables
 
 	// constructors
@@ -37,35 +43,132 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 		this.isSelected = false;
 		this.eDrawingStyle = eDrawingStyle;
 		this.selectedAnchor = null;
+		
+		this.affineTransform = new AffineTransform();
+		this.affineTransform.setToIdentity();
 	}
 
 	// getters & setters
 	public EDrawingStyle getDrawingStyle() {
 		return this.eDrawingStyle;
 	}
+	public EAction getAction() {
+		return this.eAction;
+	}
+	public EAnchors getSelectedAnchor() {
+		return this.selectedAnchor;
+	}
 
 	// methods
 	public EAction containes(int x, int y) {
+		this.eAction = null;
 		if (this.isSelected) {
 			for (int i = 0; i < this.anchors.length - 1; i++) {
 				if (this.anchors[i].contains(x, y)) {
 					this.selectedAnchor = EAnchors.values()[i]; // 앵커에서의 몇번째인지
-					return EAction.eResize;
+					this.eAction = EAction.eResize;
 				}
 			}
 			if (this.anchors[EAnchors.RR.ordinal()].contains(x, y)) {
-				return EAction.eRotate;
+				this.eAction = EAction.eRotate;
 			}
 		}
 		if (this.shape.contains(x, y)) {
-			return EAction.eMove;
+			this.eAction = EAction.eMove;
 		}
-		return null;
+		return this.eAction;
 	}
 
 	public void setSelected(boolean isSelected) {
+
 		this.isSelected = isSelected;
 	}
+
+	public void move(Graphics2D graphics2d, int dx, int dy) {
+		this.draw(graphics2d);
+		this.affineTransform.translate(dx, dy);
+		this.draw(graphics2d);
+	}
+	
+	public void resize(Graphics2D graphics2d, double dx, double dy) {
+		this.draw(graphics2d);
+	
+		Point2D resizePoint = new Point2D.Double();
+		
+		double width = this.shape.getBounds().getWidth();
+		double height = this.shape.getBounds().getHeight();
+
+		double deltaW = 0;
+		double deltaH = 0;
+		
+		double xFactor = 1.0;
+		double yFactor = 1.0;
+
+		switch (this.selectedAnchor) {
+		case x0y0:// NW
+			deltaW = -dx;
+			deltaH = -dy;
+			resizePoint.setLocation(this.anchors[EAnchors.x2y2.ordinal()].getCenterX(), this.anchors[EAnchors.x2y2.ordinal()].getCenterY());
+			break;
+		case x0y1:// W
+			deltaW = -dx;
+			deltaH = 0;
+			resizePoint.setLocation(this.anchors[EAnchors.x2y1.ordinal()].getCenterX(), this.anchors[EAnchors.x2y1.ordinal()].getCenterY());
+			//resizeAnchor = EAnchors.x2y1;
+			break;
+		case x0y2:// SW
+			deltaW = -dx;
+			deltaH = dy;
+			resizePoint.setLocation(this.anchors[EAnchors.x2y0.ordinal()].getCenterX(), this.anchors[EAnchors.x2y0.ordinal()].getCenterY());
+			//resizeAnchor = EAnchors.x2y0;
+			break;
+		case x1y0:// N
+			deltaW = 0;
+			deltaH = -dy;
+			resizePoint.setLocation(this.anchors[EAnchors.x1y2.ordinal()].getCenterX(), this.anchors[EAnchors.x1y2.ordinal()].getCenterY());
+			//resizeAnchor = EAnchors.x1y2;
+			break;
+		case x1y2:// S
+			deltaW = 0;
+			deltaH = dy;
+			resizePoint.setLocation(this.anchors[EAnchors.x1y0.ordinal()].getCenterX(), this.anchors[EAnchors.x1y0.ordinal()].getCenterY());
+			//resizeAnchor = EAnchors.x1y0;
+			break;
+		case x2y0:// NE
+			deltaW = dx;
+			deltaH = -dy;
+			resizePoint.setLocation(this.anchors[EAnchors.x0y2.ordinal()].getCenterX(), this.anchors[EAnchors.x0y2.ordinal()].getCenterY());
+			//resizeAnchor = EAnchors.x0y2;
+			break;
+		case x2y1:// E
+			deltaW = dx;
+			deltaH = 0;
+			resizePoint.setLocation(this.anchors[EAnchors.x0y1.ordinal()].getCenterX(), this.anchors[EAnchors.x0y1.ordinal()].getCenterY());
+			//resizeAnchor = EAnchors.x0y1;
+			break;
+		case x2y2:// SE
+			deltaW = dx;
+			deltaH = dy;
+			//resizeAnchor = EAnchors.x0y0;
+			resizePoint.setLocation(this.anchors[EAnchors.x0y0.ordinal()].getCenterX(), this.anchors[EAnchors.x0y0.ordinal()].getCenterY());
+			break;
+		default:
+			break;
+
+		}
+
+		if (width > 0.0) {
+			xFactor = deltaW / width + xFactor;
+		}
+		if (height > 0.0) {
+			yFactor = deltaH / height + yFactor;
+		}
+		
+		this.affineTransform.scale(xFactor, yFactor);
+		
+		this.draw(graphics2d);
+	}
+
 
 	private void drawAnchors(Graphics2D graphics) {
 		int wAnchor = GConstants.wAnchor;
@@ -95,18 +198,20 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 			Color color = graphics.getColor();
 			// 비어있는 앵커
 			graphics.setColor(Color.WHITE);
-			graphics.fill(this.anchors[eAnchor.ordinal()]);
+			graphics.fill(this.affineTransform.createTransformedShape(this.anchors[eAnchor.ordinal()]));
 			// 원래 팬 색깔
 			graphics.setColor(color);
-			graphics.draw(this.anchors[eAnchor.ordinal()]);
+			graphics.draw(this.affineTransform.createTransformedShape(this.anchors[eAnchor.ordinal()]));
 		}
 	}
 
 	public void draw(Graphics2D graphics) {
-		graphics.draw(this.shape);
+		graphics.draw(this.affineTransform.createTransformedShape(this.shape));
 		if(isSelected) {
 			this.drawAnchors(graphics);
 		}
+		
+		
 	}
 
 	public void animate(Graphics2D graphics2d, int x, int y) {
@@ -126,5 +231,7 @@ abstract public class GShapeTool implements Serializable, Cloneable {
 	public abstract void setFinalPoint(int x, int y);
 
 	public abstract void movePoint(int x, int y);
+
+
 
 }

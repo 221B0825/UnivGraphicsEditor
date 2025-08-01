@@ -15,6 +15,9 @@ import javax.swing.JPanel;
 import main.GConstants.EAction;
 import main.GConstants.EDrawingStyle;
 import shapeTools.GShapeTool;
+import transformer.GMover;
+import transformer.GResizer;
+import transformer.GTransformer;
 
 public class GPanel extends JPanel {
 	////////////////////////////////////////////////////
@@ -31,6 +34,7 @@ public class GPanel extends JPanel {
 
 	private GShapeTool shapeTool; // 도구에 선택된 애가 있음
 	private GShapeTool selectedShape; // 그걸 카피해서 그림그리는 애
+	private GTransformer transformer;
 
 	////////////////////////////////////////////////////
 	// getters and setters
@@ -81,13 +85,6 @@ public class GPanel extends JPanel {
 		this.repaint();
 	}
 
-	private void clearSelected() {
-		for (GShapeTool shape : this.shapes) {
-			shape.setSelected(false);
-		}
-		this.repaint();
-	}
-
 	private GShapeTool onShape(int x, int y) { // 어떤 도형인지 확인함
 		for (GShapeTool shape : this.shapes) {
 			EAction eAction = shape.containes(x, y);
@@ -122,15 +119,36 @@ public class GPanel extends JPanel {
 	}
 
 	private void initTransforming(GShapeTool selectedShape, int x, int y) {
+
 		this.selectedShape = selectedShape;
+		EAction eAction = this.selectedShape.getAction();
+		switch (eAction) {
+		case eMove:
+			this.transformer = new GMover(this.selectedShape);
+			break;
+		case eResize:
+			this.transformer = new GResizer(this.selectedShape);
+			break;
+		case eRotate:
+			break;
+		default:
+			break;
+		}
+		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
+		graphics2d.setXORMode(this.getBackground());
+		this.transformer.initTransforming(graphics2d, x, y);
 	}
 
 	private void keepTransforming(int x, int y) {
-
+		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
+		graphics2d.setXORMode(this.getBackground());
+		this.transformer.keepTransforming(graphics2d, x, y);
 	}
 
 	private void finishTransforming(int x, int y) {
-
+		Graphics2D graphics2d = (Graphics2D) this.getGraphics();
+		graphics2d.setXORMode(this.getBackground());
+		this.transformer.finishTransforming(graphics2d, x, y);
 	}
 
 	////////////////////////////////////////////////////
@@ -156,7 +174,7 @@ public class GPanel extends JPanel {
 					}
 				} else {
 					initTransforming(selectedShape, e.getX(), e.getY());
-				
+					this.isTransforming = true;
 				}
 			}
 		}
@@ -168,7 +186,7 @@ public class GPanel extends JPanel {
 					keepDrawing(e.getX(), e.getY());
 				}
 			} else if (this.isTransforming) {
-				keepDrawing(e.getX(), e.getY());
+				keepTransforming(e.getX(), e.getY());
 			}
 		}
 
@@ -180,7 +198,7 @@ public class GPanel extends JPanel {
 					this.isDrawing = false;
 				}
 			} else if (this.isTransforming) {
-				finishDrawing(e.getX(), e.getY());
+				finishTransforming(e.getX(), e.getY());
 				this.isTransforming = false;
 			}
 		}
@@ -189,7 +207,6 @@ public class GPanel extends JPanel {
 			if (!isDrawing) {
 				GShapeTool selectedShape = onShape(e.getX(), e.getY());
 				if (selectedShape == null) {
-					clearSelected();
 					if (shapeTool.getDrawingStyle() == EDrawingStyle.eNPointDrawing) {
 						initDrawing(e.getX(), e.getY());
 						this.isDrawing = true;
