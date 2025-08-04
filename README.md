@@ -1,10 +1,10 @@
-# GraphicsEditor
+# UnivGraphicsEditor
 
 Using Java in 2021  
 📌: Paint Program (Java Swing 기반 그래픽 에디터)
 
-[![License](https://img.shields.io/github/license/221b0825/GraphicsEditor)](LICENSE)  
-[![Last Commit](https://img.shields.io/github/last-commit/221b0825/GraphicsEditor)](https://github.com/221b0825/GraphicsEditor/commits/main)
+[![License](https://img.shields.io/github/license/221b0825/UnivGraphicsEditor)](LICENSE)  
+[![Last Commit](https://img.shields.io/github/last-commit/221b0825/GraphicsEditor)](https://github.com/221b0825/UnivGraphicsEditor/commits/main)
 
 ## 🚀 Introduction
 Java 기반으로 제작된 간단한 그래픽 편집기입니다. 도형 그리기, 변형, 실행 취소 등 기본적인 그래픽 편집 기능을 제공하며, 패키지 단위로 구조화되어 코드 가독성과 유지보수가 용이합니다.
@@ -41,7 +41,7 @@ Java 기반으로 제작된 간단한 그래픽 편집기입니다. 도형 그�
   `GMenuBar`, `GFileMenu`, `GEditMenu`로 구성된 메뉴, `GToolBar`로 툴 선택, `GFrame`과 `GPanel`로 전체 UI 레이아웃 구성
 
 * ⚙️ **상수 및 설정 관리**
-  `GConstants`에 공통 사용값(예: 앱커 크기, 액션 타입 등)을 정의하여 하드코딩 지양 및 일관성 유지
+  `GConstants`에 공통 사용값(예: 액션 타입 등)을 정의하여 하드코딩 지양 및 일관성 유지
 
 ---
 
